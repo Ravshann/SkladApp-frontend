@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # sklad
 
 ## Project setup
@@ -27,3 +28,6 @@ yarn run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+=======
+# Sklad
+>>>>>>> fd90299b2cb4ac00964ef26a5269c0ae3db5d292
