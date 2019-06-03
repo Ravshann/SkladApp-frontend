@@ -7,7 +7,7 @@
 export default {
   name: "excel-generator",
   props: {
-    json_data: []
+    json_data: Array
   },
   data: function() {
     return {

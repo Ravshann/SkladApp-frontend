@@ -54,7 +54,7 @@
           <data-pick-menu @date-selected-event="dateSelected"/>
           <!-- autocomplete fields -->
           <v-autocomplete
-            v-model="ex_client_name"
+            v-model="client_name"
             :items="clients"
             label="Получатель"
             prepend-icon="person"
@@ -63,7 +63,7 @@
           ></v-autocomplete>
 
           <v-autocomplete
-            v-model="ex_product_name"
+            v-model="product_name"
             :items="products"
             label="Наименование товара"
             prepend-icon="sort"
@@ -72,7 +72,7 @@
           ></v-autocomplete>
 
           <v-autocomplete
-            v-model="ex_store_name"
+            v-model="store_name"
             :items="storages"
             label="Склад"
             prepend-icon="home"
@@ -81,10 +81,10 @@
           ></v-autocomplete>
 
           <v-text-field
-            v-model.number="ex_quantity"
+            v-model.number="quantity"
             type="number"
-            name="ex_quantity"
-            id="ex_quantity"
+            name="quantity"
+            id="quantity"
             label="Количество"
             prepend-icon="edit"
             item-text="quantity"
@@ -101,11 +101,11 @@
           <v-data-table :headers="headers_export" :items="exportdata">
             <template v-slot:items="props">
               <td sortable="true">{{ props.item.record_count }}</td>
-              <td class="text-xs-left">{{ props.item.ex_product_name }}</td>
-              <td class="text-xs-left">{{ props.item.ex_quantity }}</td>
-              <td class="text-xs-left">{{ props.item.ex_store_name }}</td>
-              <td class="text-xs-left">{{ props.item.ex_client_name }}</td>
-              <td class="text-xs-left">{{ props.item.ex_date }}</td>
+              <td class="text-xs-left">{{ props.item.product_name }}</td>
+              <td class="text-xs-left">{{ props.item.quantity }}</td>
+              <td class="text-xs-left">{{ props.item.store_name }}</td>
+              <td class="text-xs-left">{{ props.item.client_name }}</td>
+              <td class="text-xs-left">{{ props.item.date }}</td>
             </template>
           </v-data-table>
         </v-card-text>
@@ -119,7 +119,11 @@
 
 <script>
 import DataPickMenu from "./DataPickMenu";
-import axios from "axios";
+import RepositoryFactory from "../../services/RepositoryFactory";
+const clientsRepository = RepositoryFactory.get("clients");
+const productsRepository = RepositoryFactory.get("products");
+const storagesRepository = RepositoryFactory.get("storages");
+const outgoingRepository = RepositoryFactory.get("outgoing");
 
 export default {
   name: "outgoing-record-form",
@@ -133,125 +137,88 @@ export default {
   },
   methods: {
     dateSelected: function(date) {
-      this.ex_date = date;
+      this.date = date;
     },
-    getClients: function() {
-      const url = this.host + ":" + this.port + "/clients";
-      var self = this;
-      axios
-        .get(url)
-        .then(function(response) {
-          self.clients = response.data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+    async getClients() {
+      const { data } = await clientsRepository.get();
+      this.clients = data;
     },
-    getProducts: function() {
-      const url = this.host + ":" + this.port + "/products";
-      var self = this;
-      axios
-        .get(url)
-        .then(function(response) {
-          self.products = response.data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+    async getProducts() {
+      const { data } = await productsRepository.get();
+      this.products = data;
     },
-    getStorages: function() {
-      const url = this.host + ":" + this.port + "/storages";
-      var self = this;
-      axios
-        .get(url)
-        .then(function(response) {
-          self.storages = response.data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+    async getStorages() {
+      const { data } = await storagesRepository.get();
+      this.storages = data;
     },
-    add: function() {
+    add() {
       this.record_count++;
       var newRow = {
         record_count: this.record_count + "",
-        ex_product_name: this.ex_product_name,
-        ex_store_name: this.ex_store_name,
-        ex_quantity: this.ex_quantity,
-        ex_client_name: this.ex_client_name,
-        ex_date: this.ex_date
+        product_name: this.product_name,
+        store_name: this.store_name,
+        quantity: this.quantity,
+        client_name: this.client_name,
+        date: this.date
       };
       var new_detailed_export_record = {
         product_ID: this.getProductID(),
         storage_ID: this.getStorageID(),
         client_ID: this.getClientID(),
-        quantity: this.ex_quantity,
-        record_datetime: this.ex_date,
+        quantity: this.quantity,
+        record_datetime: this.date,
         inout_type_ID: 1,
         note: "some"
       };
       this.exportdata.push(newRow);
       this.detailed_export_list.push(new_detailed_export_record);
-      this.ex_product_name = "";
-      this.ex_store_name = "";
-      this.ex_quantity = "";
-      this.ex_client_name = "";
+      this.product_name = "";
+      this.store_name = "";
+      this.quantity = "";
+      this.client_name = "";
     },
-    clearAll: function() {
+    clearAll() {
       this.record_count = 0;
       this.exportdata = [];
       this.detailed_export_list = [];
     },
-    saveChanges: function(choice) {
+    saveChanges(choice) {
       if (choice) {
         this.inform_dialog_done = true;
         this.save_outgoing_records = false;
         // save data
-        const url = this.host + ":" + this.port + "/outgoing/save";
-        var self = this;
+
         var object = this.detailed_export_list;
         this.$emit("outgoing-record-event", object);
-        //console.log(JSON.stringify(object));
-        axios
-          .post(url, object, {
-            headers: { "Content-type": "application/json" }
-          })
-          .then(function(response) {
-            console.log(response.data);
-          })
-          .catch(function(error) {
-            console.log(error);
-          });
+        outgoingRepository.save(object);
         //clear data
         this.clearAll();
       } else {
         this.save_outgoing_records = false;
       }
     },
-    getProductID: function() {
+    getProductID() {
       for (var index in this.products) {
-        if (this.products[index].product_name === this.ex_product_name) {
+        if (this.products[index].product_name === this.product_name) {
           return this.products[index].product_ID;
         }
       }
     },
-    getClientID: function() {
+    getClientID() {
       for (var index in this.clients) {
-        if (this.clients[index].client_name === this.ex_client_name)
+        if (this.clients[index].client_name === this.client_name)
           return this.clients[index].client_ID;
       }
     },
-    getStorageID: function() {
+    getStorageID() {
       for (var index in this.storages) {
-        if (this.storages[index].storage_name === this.ex_store_name)
+        if (this.storages[index].storage_name === this.store_name)
           return this.storages[index].storage_ID;
       }
     }
   },
-  data: function() {
+  data() {
     return {
-      host: "http://www.sklad-app.tk",
-      port: "8080",
       outgoing_dialog: false,
       save_outgoing_records: false,
       inform_dialog_done: false,
@@ -262,11 +229,11 @@ export default {
       detailed_export_list: [],
       selected: [],
       record_count: 0,
-      ex_product_name: String,
-      ex_store_name: String,
-      ex_quantity: "",
-      ex_client_name: String,
-      ex_date: Date,
+      product_name: String,
+      store_name: String,
+      quantity: "",
+      client_name: String,
+      date: Date,
 
       headers_export: [
         {

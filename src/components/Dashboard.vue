@@ -116,7 +116,7 @@
   </v-app>
 </template>
 <script>
-import remainder from "./remainder_component/Remainder"
+import remainder from "./remainder_component/Remainder";
 import realdate1 from "./Realdate1";
 export default {
   name: "dashboard",
@@ -133,40 +133,8 @@ export default {
 };
 </script>
 <style scoped>
-.main-drawer {
-  width: 250px;
-  background: black;
-}
-
 .toolbar__item {
   margin-top: 80px;
-}
-.main-drawer {
-  width: 250px;
-  background: black;
-}
-
-.toolbar__item {
-  margin-top: 80px;
-}
-
-.button__in {
-  background: #3f9b6c;
-}
-
-.button__in:hover {
-  background: #157c5d;
-  transition: background 0.9s ease;
-}
-
-.button__out {
-  background: #369baa;
-  margin-left: 10px;
-}
-
-.button__out:hover {
-  background: #158399;
-  transition: background 0.9s ease;
 }
 
 .staff {
@@ -179,70 +147,5 @@ export default {
   color: #000000;
   text-decoration: none;
   font-size: 21px;
-}
-
-.page-title {
-  text-align: center;
-  margin-top: 25px;
-}
-
-.clearfix::after {
-  content: " ";
-  display: table;
-  clear: both;
-}
-
-.search-block {
-  padding: 15px;
-  margin: 20px;
-}
-
-.search-input::after {
-  color: inherit;
-  content: attr(data-icon);
-  font-family: "FontAwesome";
-  font-style: normal;
-}
-
-.search-block__left {
-  max-width: 400px;
-  float: left;
-}
-
-.search-block__right {
-  max-width: 400px;
-  float: right;
-}
-
-.button {
-  width: 85px;
-  min-height: 30px;
-  border-radius: 5px;
-}
-
-.search-filter {
-  margin-right: 15px;
-  background: #9e48db;
-  color: #fff;
-  padding: 0 3px;
-}
-
-.search-filter:hover {
-  background: #96308c;
-  transition: background 0.9s ease;
-}
-
-.search-download {
-  margin-right: 0;
-  background: #238765;
-  color: #fff;
-}
-
-.search-download:hover {
-  background: #28632d;
-  transition: background 0.9s ease;
-}
-.v-text-field >>> .v-input__control {
-  margin-left: 5%;
 }
 </style>

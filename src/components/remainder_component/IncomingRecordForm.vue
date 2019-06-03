@@ -114,9 +114,12 @@
 
 
 <script>
-import axios from "axios";
 import DataPickMenu from "./DataPickMenu";
-
+import RepositoryFactory from "../../services/RepositoryFactory";
+const suppliersRepository = RepositoryFactory.get("suppliers");
+const productsRepository = RepositoryFactory.get("products");
+const storagesRepository = RepositoryFactory.get("storages");
+const incomingRepository = RepositoryFactory.get("incoming");
 export default {
   name: "incoming-record-form",
   components: {
@@ -132,41 +135,17 @@ export default {
       this.date = date;
     },
 
-    getSuppliers: function() {
-      const url = this.host + ":" + this.port + "/suppliers";
-      var self = this;
-      axios
-        .get(url)
-        .then(function(response) {
-          self.suppliers = response.data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+    async getSuppliers() {
+      const { data } = await suppliersRepository.get();
+      this.suppliers = data;
     },
-    getProducts: function() {
-      const url = this.host + ":" + this.port + "/products";
-      var self = this;
-      axios
-        .get(url)
-        .then(function(response) {
-          self.products = response.data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+    async getProducts() {
+      const { data } = await productsRepository.get();
+      this.products = data;
     },
-    getStorages: function() {
-      const url = this.host + ":" + this.port + "/storages";
-      var self = this;
-      axios
-        .get(url)
-        .then(function(response) {
-          self.storages = response.data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+    async getStorages() {
+      const { data } = await storagesRepository.get();
+      this.storages = data;
     },
     add: function() {
       this.record_count++;
@@ -204,21 +183,9 @@ export default {
         this.inform_dialog_done = true;
         this.save_incoming_records = false;
         // save data
-        const url = this.host + ":" + this.port + "/incoming/save";
-        var self = this;
         var object = this.detailed_import_list;
         this.$emit("incoming-record-event", object);
-        //console.log(JSON.stringify(object));
-        axios
-          .post(url, object, {
-            headers: { "Content-type": "application/json" }
-          })
-          .then(function(response) {
-            console.log(response.data);
-          })
-          .catch(function(error) {
-            console.log(error);
-          });
+        incomingRepository.save(object);
         //clear data
         this.clearAll();
       } else {
@@ -247,9 +214,6 @@ export default {
   },
   data: function() {
     return {
-      host: "http://www.sklad-app.tk",
-      port: "8080",
-
       incoming_dialog: false,
       save_incoming_records: false,
       inform_dialog_done: false,

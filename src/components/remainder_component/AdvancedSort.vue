@@ -75,7 +75,7 @@ export default {
         category: this.category,
         storage_name: this.storage_name
       };
-      
+
       this.$emit("sort_event", object);
     }
   },

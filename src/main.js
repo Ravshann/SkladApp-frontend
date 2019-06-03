@@ -22,7 +22,6 @@ Vue.use(Vuetify, {
     'defects': 'fas fa-dharmachakra',
     'clients': 'fas fa-hand-holding-usd',
     'goods': 'fab fa-intercom',
-    // 'sup': 'far fa-industry',
   },
   theme: {
     nav_drawer: '#293242',
