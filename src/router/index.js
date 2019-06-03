@@ -1,21 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Remainder from '@/components/Remainder'
+import Dashboard from '@/components/Dashboard.vue'
 import Login from '@/components/Login'
 
 Vue.use(Router);
 
-export default new Router({ 
-  routes: [
-    {
-      path: '/',
-      name: 'login',
-      component: Login
-    },
-    {
-      path: '/remainder',
-      name: 'remainder',
-      component: Remainder
-    }
-  ]
+const routes = [
+  // { path: '/', name: "login", component: Login },
+  { path: '/', name: "dashboard", component: Dashboard }
+]
+export default new Router({
+  routes
 })
