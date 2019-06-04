@@ -1,114 +1,166 @@
-<template>
-  <div>
-    <!-- button for opening dialog -->
-    <v-btn color="primary" dark @click="incoming_dialog = true">Приход</v-btn>
-    <!-- dialog for 'outgoing' button -->
-    <v-dialog
-      v-model="incoming_dialog"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-      scrollable
-    >
-      <v-card title>
-        <v-toolbar card dark color="primary">
-          <v-btn icon dark @click="incoming_dialog = false" title="свернуть">
-            <v-icon>close</v-icon>
-          </v-btn>
-          <v-toolbar-title>Приход</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-toolbar-items>
-            <v-btn dark flat @click="save_incoming_records = true">Добавить</v-btn>
-          </v-toolbar-items>
-          <!-- dialog for confirmation -->
-          <v-dialog v-model="save_incoming_records" max-width="290">
-            <v-card>
-              <v-card-title class="headline">make imports?</v-card-title>
-              <v-card-text>all imports will be saved.</v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="green darken-1"
-                  flat="flat"
-                  @click.prevent="saveChanges(true)"
-                >continue</v-btn>
-                <v-btn color="green darken-1" flat="flat" @click.prevent="saveChanges(false)">cancel</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <!-- dialog for notifiying -->
-          <v-dialog v-model="inform_dialog_done" max-width="290">
-            <v-card>
-              <v-card-title class="headline">exports saved</v-card-title>
-              <v-card-text>all exports are saved.</v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="green darken-1" flat="flat" @click="inform_dialog_done=false">ok</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-        <v-card-text>
-          <!-- data pick menu -->
-          <data-pick-menu @date-selected-event="dateSelected"/>
-          <!-- autocomplete fields -->
-          <v-autocomplete
-            v-model="supplier_name"
-            :items="suppliers"
-            label="Поставщики"
-            prepend-icon="local_shipping"
-            persistent-hint
-            item-text="supplier_name"
-          ></v-autocomplete>
+<template lang="pug">
+div
+  // button for opening dialog
+  v-btn(color='primary' dark='' @click='incoming_dialog = true') &Pcy;&rcy;&icy;&khcy;&ocy;&dcy;
+  // dialog for 'outgoing' button
+  v-dialog(v-model='incoming_dialog' fullscreen='' hide-overlay='' transition='dialog-bottom-transition' scrollable='')
+    v-card(title='')
+      v-toolbar(card='' dark='' color='primary')
+        v-btn(icon='' dark='' @click='incoming_dialog = false' title='свернуть')
+          v-icon close
+        v-toolbar-title &Pcy;&rcy;&icy;&khcy;&ocy;&dcy;
+        v-spacer
+        v-toolbar-items
+          v-btn(dark='' flat='' @click='save_incoming_records = true') &Dcy;&ocy;&bcy;&acy;&vcy;&icy;&tcy;&softcy;
+        // dialog for confirmation
+        v-dialog(v-model='save_incoming_records' max-width='290')
+          v-card
+            v-card-title.headline make imports?
+            v-card-text all imports will be saved.
+            v-card-actions
+              v-spacer
+              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
+              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') cancel
+        // dialog for notifiying
+        v-dialog(v-model='inform_dialog_done' max-width='290')
+          v-card
+            v-card-title.headline exports saved
+            v-card-text all exports are saved.
+            v-card-actions
+              v-spacer
+              v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
+      v-card-text
+        // data pick menu
+        data-pick-menu(@date-selected-event='dateSelected')
+          // autocomplete fields
+          v-autocomplete(v-model='supplier_name' :items='suppliers' label='Поставщики' prepend-icon='local_shipping' persistent-hint='' item-text='supplier_name')
+          v-autocomplete(v-model='product_name' :items='products' label='Наименование товара' prepend-icon='sort' persistent-hint='' item-text='product_name')
+          v-autocomplete(v-model='storage_name' :items='storages' label='Склад' prepend-icon='home' persistent-hint='' item-text='storage_name')
+          v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
+          v-btn(fab='' dark='' color='indigo' justify-center='' @click.prevent='add' title='добавить')
+            v-icon(dark='') add
+          v-btn(fab='' dark='' color='red' justify-center='' @click.prevent='clearAll' title='очистить')
+            v-icon(dark='') remove
+          v-data-table(:headers='headers' :items='importdata')
+            template(v-slot:items='props')
+              td(sortable='true') {{ props.item.record_count }}
+              td.text-xs-left {{ props.item.product_name }}
+              td.text-xs-left {{ props.item.quantity }}
+              td.text-xs-left {{ props.item.storage_name }}
+              td.text-xs-left {{ props.item.supplier_name }}
+              td.text-xs-left {{ props.item.date }}
+      div(style='flex: 1 1 auto;')
 
-          <v-autocomplete
-            v-model="product_name"
-            :items="products"
-            label="Наименование товара"
-            prepend-icon="sort"
-            persistent-hint
-            item-text="product_name"
-          ></v-autocomplete>
+  //- <div>
+  //-   <!-- button for opening dialog -->
+  //-   <v-btn color="primary" dark @click="incoming_dialog = true">Приход</v-btn>
+  //-   <!-- dialog for 'outgoing' button -->
+  //-   <v-dialog
+  //-     v-model="incoming_dialog"
+  //-     fullscreen
+  //-     hide-overlay
+  //-     transition="dialog-bottom-transition"
+  //-     scrollable
+  //-   >
+  //-     <v-card title>
+  //-       <v-toolbar card dark color="primary">
+  //-         <v-btn icon dark @click="incoming_dialog = false" title="свернуть">
+  //-           <v-icon>close</v-icon>
+  //-         </v-btn>
+  //-         <v-toolbar-title>Приход</v-toolbar-title>
+  //-         <v-spacer></v-spacer>
+  //-         <v-toolbar-items>
+  //-           <v-btn dark flat @click="save_incoming_records = true">Добавить</v-btn>
+  //-         </v-toolbar-items>
+  //-         <!-- dialog for confirmation -->
+  //-         <v-dialog v-model="save_incoming_records" max-width="290">
+  //-           <v-card>
+  //-             <v-card-title class="headline">make imports?</v-card-title>
+  //-             <v-card-text>all imports will be saved.</v-card-text>
+  //-             <v-card-actions>
+  //-               <v-spacer></v-spacer>
+  //-               <v-btn
+  //-                 color="green darken-1"
+  //-                 flat="flat"
+  //-                 @click.prevent="saveChanges(true)"
+  //-               >continue</v-btn>
+  //-               <v-btn color="green darken-1" flat="flat" @click.prevent="saveChanges(false)">cancel</v-btn>
+  //-             </v-card-actions>
+  //-           </v-card>
+  //-         </v-dialog>
+  //-         <!-- dialog for notifiying -->
+  //-         <v-dialog v-model="inform_dialog_done" max-width="290">
+  //-           <v-card>
+  //-             <v-card-title class="headline">exports saved</v-card-title>
+  //-             <v-card-text>all exports are saved.</v-card-text>
+  //-             <v-card-actions>
+  //-               <v-spacer></v-spacer>
+  //-               <v-btn color="green darken-1" flat="flat" @click="inform_dialog_done=false">ok</v-btn>
+  //-             </v-card-actions>
+  //-           </v-card>
+  //-         </v-dialog>
+  //-       </v-toolbar>
+  //-       <v-card-text>
+  //-         <!-- data pick menu -->
+  //-         <data-pick-menu @date-selected-event="dateSelected"/>
+  //-         <!-- autocomplete fields -->
+  //-         <v-autocomplete
+  //-           v-model="supplier_name"
+  //-           :items="suppliers"
+  //-           label="Поставщики"
+  //-           prepend-icon="local_shipping"
+  //-           persistent-hint
+  //-           item-text="supplier_name"
+  //-         ></v-autocomplete>
 
-          <v-autocomplete
-            v-model="storage_name"
-            :items="storages"
-            label="Склад"
-            prepend-icon="home"
-            persistent-hint
-            item-text="storage_name"
-          ></v-autocomplete>
+  //-         <v-autocomplete
+  //-           v-model="product_name"
+  //-           :items="products"
+  //-           label="Наименование товара"
+  //-           prepend-icon="sort"
+  //-           persistent-hint
+  //-           item-text="product_name"
+  //-         ></v-autocomplete>
 
-          <v-text-field
-            v-model.number="quantity"
-            type="number"
-            label="Количество"
-            prepend-icon="edit"
-            placeholder="0"
-          ></v-text-field>
+  //-         <v-autocomplete
+  //-           v-model="storage_name"
+  //-           :items="storages"
+  //-           label="Склад"
+  //-           prepend-icon="home"
+  //-           persistent-hint
+  //-           item-text="storage_name"
+  //-         ></v-autocomplete>
 
-          <v-btn fab dark color="indigo" justify-center @click.prevent="add" title="добавить">
-            <v-icon dark>add</v-icon>
-          </v-btn>
-          <v-btn fab dark color="red" justify-center @click.prevent="clearAll" title="очистить">
-            <v-icon dark>remove</v-icon>
-          </v-btn>
+  //-         <v-text-field
+  //-           v-model.number="quantity"
+  //-           type="number"
+  //-           label="Количество"
+  //-           prepend-icon="edit"
+  //-           placeholder="0"
+  //-         ></v-text-field>
 
-          <v-data-table :headers="headers" :items="importdata">
-            <template v-slot:items="props">
-              <td sortable="true">{{ props.item.record_count }}</td>
-              <td class="text-xs-left">{{ props.item.product_name }}</td>
-              <td class="text-xs-left">{{ props.item.quantity }}</td>
-              <td class="text-xs-left">{{ props.item.storage_name }}</td>
-              <td class="text-xs-left">{{ props.item.supplier_name }}</td>
-              <td class="text-xs-left">{{ props.item.date }}</td>
-            </template>
-          </v-data-table>
-        </v-card-text>
-        <div style="flex: 1 1 auto;"></div>
-      </v-card>
-    </v-dialog>
-  </div>
+  //-         <v-btn fab dark color="indigo" justify-center @click.prevent="add" title="добавить">
+  //-           <v-icon dark>add</v-icon>
+  //-         </v-btn>
+  //-         <v-btn fab dark color="red" justify-center @click.prevent="clearAll" title="очистить">
+  //-           <v-icon dark>remove</v-icon>
+  //-         </v-btn>
+
+  //-         <v-data-table :headers="headers" :items="importdata">
+  //-           <template v-slot:items="props">
+  //-             <td sortable="true">{{ props.item.record_count }}</td>
+  //-             <td class="text-xs-left">{{ props.item.product_name }}</td>
+  //-             <td class="text-xs-left">{{ props.item.quantity }}</td>
+  //-             <td class="text-xs-left">{{ props.item.storage_name }}</td>
+  //-             <td class="text-xs-left">{{ props.item.supplier_name }}</td>
+  //-             <td class="text-xs-left">{{ props.item.date }}</td>
+  //-           </template>
+  //-         </v-data-table>
+  //-       </v-card-text>
+  //-       <div style="flex: 1 1 auto;"></div>
+  //-     </v-card>
+  //-   </v-dialog>
+  //- </div>
 </template>
 
 

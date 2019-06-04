@@ -1,32 +1,47 @@
-<template>
-  <v-content>
-    <v-data-table
-      :headers="headers"
-      :items="remainder_data"
-      :rows-per-page-items="[25,50]"
-      :search="search"
-      class="elevation-0 product-table"
-    >
-      <template v-slot:items="props">
-        <td>{{ props.item.productName }}</td>
-        <td class="text-xs-left" style="bold">{{ props.item.categoryName }}</td>
-        <td class="text-xs-left">{{ props.item.total}}</td>
+<template lang="pug">
+v-content
+  v-data-table.elevation-0.product-table(:headers='headers' :items='remainder_data' :rows-per-page-items='[25,50]' :search='search')
+    template(v-slot:items='props')
+      td {{ props.item.productName }}
+      td.text-xs-left(style='bold') {{ props.item.categoryName }}
+      td.text-xs-left {{ props.item.total}}
+      td.px-0
+        template(v-for='item in props.item.storageQuantities')
+          td.text-xs-left.pl-4(style='min-width: 100%;') {{ item.storageName }}
+          v-divider
+      td.px-0
+        template(v-for='item in props.item.storageQuantities')
+          td.text-xs-left.pl-4 {{ item.quantity }}
+          v-divider
 
-        <td class="px-0">
-          <template v-for="item in props.item.storageQuantities">
-            <td class="text-xs-left pl-4" style="min-width: 100%;">{{ item.storageName }}</td>
-            <v-divider></v-divider>
-          </template>
-        </td>
-        <td class="px-0">
-          <template v-for="item in props.item.storageQuantities">
-            <td class="text-xs-left pl-4">{{ item.quantity }}</td>
-            <v-divider></v-divider>
-          </template>
-        </td>
-      </template>
-    </v-data-table>
-  </v-content>
+  //- <v-content>
+  //-   <v-data-table
+  //-     :headers="headers"
+  //-     :items="remainder_data"
+  //-     :rows-per-page-items="[25,50]"
+  //-     :search="search"
+  //-     class="elevation-0 product-table"
+  //-   >
+  //-     <template v-slot:items="props">
+        <td>{{ props.item.productName }}</td>
+  //-       <td class="text-xs-left" style="bold">{{ props.item.categoryName }}</td>
+  //-       <td class="text-xs-left">{{ props.item.total}}</td>
+
+  //-       <td class="px-0">
+  //-         <template v-for="item in props.item.storageQuantities">
+  //-           <td class="text-xs-left pl-4" style="min-width: 100%;">{{ item.storageName }}</td>
+  //-           <v-divider></v-divider>
+  //-         </template>
+  //-       </td>
+  //-       <td class="px-0">
+  //-         <template v-for="item in props.item.storageQuantities">
+  //-           <td class="text-xs-left pl-4">{{ item.quantity }}</td>
+  //-           <v-divider></v-divider>
+  //-         </template>
+  //-       </td>
+  //-     </template>
+  //-   </v-data-table>
+  //- </v-content>
 </template>
 <script>
 export default {

@@ -1,23 +1,30 @@
-<template>
-  <v-menu
-    ref="menu"
-    v-model="menu"
-    :close-on-content-click="false"
-    :nudge-right="40"
-    lazy
-    transition="scale-transition"
-    offset-y
-    full-width
-    min-width="290px"
-  >
-    <template v-slot:activator="{ on }">
-      <v-text-field v-model="ex_date" label="К этой дате" prepend-icon="event" readonly v-on="on"></v-text-field>
-    </template>
-    <v-date-picker v-model="ex_date" no-title scrollable>
-      <v-spacer></v-spacer>
-      <v-btn flat color="primary" @click="okButtonClicked">OK</v-btn>
-    </v-date-picker>
-  </v-menu>
+<template lang="pug">
+v-menu(ref='menu' v-model='menu' :close-on-content-click='false' :nudge-right='40' lazy='' transition='scale-transition' offset-y='' full-width='' min-width='290px')
+  template(v-slot:activator='{ on }')
+    v-text-field(v-model='ex_date' label='К этой дате' prepend-icon='event' readonly='' v-on='on')
+  v-date-picker(v-model='ex_date' no-title='' scrollable='')
+    v-spacer
+    v-btn(flat='' color='primary' @click='okButtonClicked') OK
+
+  //- <v-menu
+  //-   ref="menu"
+  //-   v-model="menu"
+  //-   :close-on-content-click="false"
+  //-   :nudge-right="40"
+  //-   lazy
+  //-   transition="scale-transition"
+  //-   offset-y
+  //-   full-width
+  //-   min-width="290px"
+  //- >
+  //-   <template v-slot:activator="{ on }">
+  //-     <v-text-field v-model="ex_date" label="К этой дате" prepend-icon="event" readonly v-on="on"></v-text-field>
+  //-   </template>
+  //-   <v-date-picker v-model="ex_date" no-title scrollable>
+  //-     <v-spacer></v-spacer>
+  //-     <v-btn flat color="primary" @click="okButtonClicked">OK</v-btn>
+  //-   </v-date-picker>
+  //- </v-menu>
 </template>
 
 <script>

@@ -1,28 +1,42 @@
-<template>
-  <div>
-    <v-content>
-      <h2 class="view-title">Остаток по {{getDate()}}</h2>
+<template lang="pug">
+div
+  v-content
+    h2.view-title &Ocy;&scy;&tcy;&acy;&tcy;&ocy;&kcy; &pcy;&ocy; {{getDate()}}
+    v-layout(row='')
+      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details='')
+      v-spacer
+      v-spacer
+      v-spacer
+      outgoing-record-form(@outgoing-record-event='updateDataTable')
+      incoming-record-form(@incoming-record-event='updateDataTable')
+      advanced-sort(:remainder_data='remainder_computed' :search='search')
+      excel-generator(:json_data='remainder_computed')
+  table-remainder(v-if='!isLoading' :remainder_data='remainder_computed' :search='search')
 
-      <v-layout row>
-        <v-text-field
-          v-model="search"
-          append-icon="search"
-          label="Поиск..."
-          single-line
-          hide-details
-        ></v-text-field>
+  //- <div>
+  //-   <v-content>
+  //-     <h2 class="view-title">Остаток по {{getDate()}}</h2>
 
-        <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
-        <outgoing-record-form @outgoing-record-event="updateDataTable"/>
-        <incoming-record-form @incoming-record-event="updateDataTable"/>
-        <advanced-sort :remainder_data="remainder_computed" :search="search"/>
-        <excel-generator :json_data="remainder_computed"/>
-      </v-layout>
-    </v-content>
-    <table-remainder v-if="!isLoading" :remainder_data="remainder_computed" :search="search"/>
-  </div>
+  //-     <v-layout row>
+  //-       <v-text-field
+  //-         v-model="search"
+  //-         append-icon="search"
+  //-         label="Поиск..."
+  //-         single-line
+  //-         hide-details
+  //-       ></v-text-field>
+
+  //-       <v-spacer></v-spacer>
+  //-       <v-spacer></v-spacer>
+  //-       <v-spacer></v-spacer>
+  //-       <outgoing-record-form @outgoing-record-event="updateDataTable"/>
+  //-       <incoming-record-form @incoming-record-event="updateDataTable"/>
+  //-       <advanced-sort :remainder_data="remainder_computed" :search="search"/>
+  //-       <excel-generator :json_data="remainder_computed"/>
+  //-     </v-layout>
+  //-   </v-content>
+  //-   <table-remainder v-if="!isLoading" :remainder_data="remainder_computed" :search="search"/>
+  //- </div>
 </template>
 
 <script>

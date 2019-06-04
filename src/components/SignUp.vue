@@ -1,24 +1,38 @@
-<template>
-  <div>
-    <h2>Signup Page</h2>
-    <form @submit="register">
-      <div>
-          <input  type="text" placeholder="Name" v-model="name">
-      </div>
-      <div>
-          <input placeholder="Your email" type="email" v-model="email">
-      </div>
-      <div>
-          <input placeholder="Password" type="password" v-model="password">
-      </div>
-      <div>
-          <input placeholder="Confirm password" type="password" v-model="password2">
-      </div>
-      <div>
-          <button type="submit">Register</button>
-      </div>
-    </form>
-  </div>
+<template lang="pug">
+div
+  h2 Signup Page
+  form(@submit='register')
+    div
+      input(type='text' placeholder='Name' v-model='name')
+    div
+      input(placeholder='Your email' type='email' v-model='email')
+    div
+      input(placeholder='Password' type='password' v-model='password')
+    div
+      input(placeholder='Confirm password' type='password' v-model='password2')
+    div
+      button(type='submit') Register
+
+  //- <div>
+  //-   <h2>Signup Page</h2>
+  //-   <form @submit="register">
+  //-     <div>
+  //-         <input  type="text" placeholder="Name" v-model="name">
+  //-     </div>
+  //-     <div>
+  //-         <input placeholder="Your email" type="email" v-model="email">
+  //-     </div>
+  //-     <div>
+  //-         <input placeholder="Password" type="password" v-model="password">
+  //-     </div>
+  //-     <div>
+  //-         <input placeholder="Confirm password" type="password" v-model="password2">
+  //-     </div>
+  //-     <div>
+  //-         <button type="submit">Register</button>
+  //-     </div>
+  //-   </form>
+  //- </div>
 </template>
 
 <script>

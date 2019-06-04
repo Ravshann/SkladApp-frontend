@@ -1,7 +1,10 @@
-<template>
-  <download-excel :data="json_data" worksheet="My Worksheet" name="filename.xls">
-    <v-btn color="#00897B" dark @click="excel_dialog = true">Скачать</v-btn>
-  </download-excel>
+<template lang="pug">
+download-excel(:data='json_data' worksheet='My Worksheet' name='filename.xls')
+  v-btn(color='#00897B' dark='' @click='excel_dialog = true') &Scy;&kcy;&acy;&chcy;&acy;&tcy;&softcy;
+
+  //- <download-excel :data="json_data" worksheet="My Worksheet" name="filename.xls">
+  //-   <v-btn color="#00897B" dark @click="excel_dialog = true">Скачать</v-btn>
+  //- </download-excel>
 </template>
 <script>
 export default {
