@@ -1,39 +1,30 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Остаток по  {{getDate()}}
+    h2.view-title Приходы по  {{getDate()}}
     v-layout(row='')
       v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details='')
       v-spacer
       v-spacer
       v-spacer
-      outgoing-record-form
-      incoming-record-form
-      advanced-sort(:search='search')
-      excel-generator
-  table-remainder(:search='search')
+      //- advanced-sort(:incoming_records='incoming_records_computed' :search='search')
+      //- excel-generator(:json_data='incoming_records_computed')
+  table-incoming(:search='search_computed')
 </template>
-
 <script>
-import TableRemainder from "./TableRemainder";
-import OutgoingRecordForm from "./OutgoingRecordForm";
-import IncomingRecordForm from "./IncomingRecordForm";
+import TableIncoming from "./TableIncoming";
 import AdvancedSort from "./AdvancedSort";
 import ExcelGenerator from "./ExcelGenerator";
 
 export default {
-  name: "Remainder",
+  name: "Incoming",
   components: {
-    TableRemainder,
-    OutgoingRecordForm,
-    IncomingRecordForm,
+    TableIncoming,
     AdvancedSort,
     ExcelGenerator
   },
-
   data() {
     return {
-      isLoading: false,
       search: ""
     };
   },
@@ -59,7 +50,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 .view-title {
   text-align: center;

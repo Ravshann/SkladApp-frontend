@@ -1,5 +1,5 @@
 <template lang="pug">
-v-content
+v-content(v-if='!isLoading')
   v-data-table.elevation-0.product-table(:headers='headers' :items='remainder_data' :rows-per-page-items='[25,50]' :search='search')
     template(v-slot:items='props')
       td {{ props.item.productName }}
@@ -13,46 +13,29 @@ v-content
         template(v-for='item in props.item.storageQuantities')
           td.text-xs-left.pl-4 {{ item.quantity }}
           v-divider
-
-  //- <v-content>
-  //-   <v-data-table
-  //-     :headers="headers"
-  //-     :items="remainder_data"
-  //-     :rows-per-page-items="[25,50]"
-  //-     :search="search"
-  //-     class="elevation-0 product-table"
-  //-   >
-  //-     <template v-slot:items="props">
-        <td>{{ props.item.productName }}</td>
-  //-       <td class="text-xs-left" style="bold">{{ props.item.categoryName }}</td>
-  //-       <td class="text-xs-left">{{ props.item.total}}</td>
-
-  //-       <td class="px-0">
-  //-         <template v-for="item in props.item.storageQuantities">
-  //-           <td class="text-xs-left pl-4" style="min-width: 100%;">{{ item.storageName }}</td>
-  //-           <v-divider></v-divider>
-  //-         </template>
-  //-       </td>
-  //-       <td class="px-0">
-  //-         <template v-for="item in props.item.storageQuantities">
-  //-           <td class="text-xs-left pl-4">{{ item.quantity }}</td>
-  //-           <v-divider></v-divider>
-  //-         </template>
-  //-       </td>
-  //-     </template>
-  //-   </v-data-table>
-  //- </v-content>
 </template>
 <script>
+import RepositoryFactory from "../../services/RepositoryFactory";
+const repository = RepositoryFactory.get("remainder");
+
+import { mapGetters, mapMutations } from "vuex";
+
 export default {
   name: "table-remainder",
-
   props: {
-    remainder_data: Array,
     search: ""
   },
-  data: function() {
+  computed: {
+    ...mapGetters({
+      remainder_data: "remainders/get_remainder_data"
+    })
+  },
+  created() {
+    this.getRemainders();
+  },
+  data() {
     return {
+      isLoading: false,
       headers: [
         {
           text: "Наименование товара",
@@ -65,6 +48,17 @@ export default {
         { text: "Количество", value: "quantity" }
       ]
     };
+  },
+  methods: {
+    ...mapMutations({
+      load_remainder_data: "remainders/load_remainder_data"
+    }),
+    async getRemainders() {
+      this.isLoading = true;
+      const { data } = await repository.get();
+      this.isLoading = false;
+      this.load_remainder_data(data);
+    }
   }
 };
 </script>

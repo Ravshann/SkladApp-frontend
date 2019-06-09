@@ -12,30 +12,45 @@ div
         v-autocomplete(v-model='storage_name' :items='storages' label='Склад' persistent-hint='' item-text='storage_name')
       v-card-actions
         v-btn(color='primary' flat='' @click='close') ЗАКРЫТЬ
-        v-btn(color='primary' @click='close') Сортировать
+        v-btn(color='primary' @click='close') СОРТИРОВАТЬ
 </template>
 
+
+
 <script>
-import { mapGetters } from "vuex";
+import axios from "axios";
+
 export default {
   name: "advanced-sort",
+  created() {
+    this.getStorages();
+  },
   props: {
+    remainder_data: Array,
     search: ""
   },
-  computed: {
-    ...mapGetters({
-      remainder_data: "remainders/get_remainder_data"
-    })
-  },
   methods: {
+    getStorages: function() {
+      const url = this.host + ":" + this.port + "/storages";
+      var self = this;
+      axios
+        .get(url)
+        .then(function(response) {
+          self.storages = response.data;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
     close() {
-      // this.advanced_sort_dialog = false;
-      // var object = {
-      //   product_name: this.product_name,
-      //   category: this.category,
-      //   storage_name: this.storage_name
-      // };
-      // this.$emit("sort_event", object);
+      this.advanced_sort_dialog = false;
+      var object = {
+        product_name: this.product_name,
+        category: this.category,
+        storage_name: this.storage_name
+      };
+
+      this.$emit("sort_event", object);
     }
   },
 
@@ -52,3 +67,5 @@ export default {
   }
 };
 </script>
+<style scoped>
+</style>
