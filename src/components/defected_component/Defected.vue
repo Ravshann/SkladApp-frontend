@@ -1,26 +1,30 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Расходы по  {{getDate()}}
-    v-layout(row)
-      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
+    h2.view-title Дефектные по  {{getDate()}}
+    v-layout(row='')
+      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details='')
       v-spacer
       v-spacer
       v-spacer
+      defected-record-form
       advanced-sort
       excel-generator
-  table-outgoing(:search='search')    
+  table-defected(:search='search')    
 </template>
 <script>
-import TableOutgoing from "./TableOutgoing";
+import TableDefected from "./TableDefected";
 import AdvancedSort from "./AdvancedSort";
 import ExcelGenerator from "./ExcelGenerator";
+import DefectedRecordForm from "./DefectedRecordForm";
+import { mapGetters } from "vuex";
 export default {
-  name: "Outgoing",
+  name: "defected",
   components: {
-    TableOutgoing,
+    TableDefected,
     AdvancedSort,
-    ExcelGenerator
+    ExcelGenerator,
+    DefectedRecordForm
   },
   data() {
     return {

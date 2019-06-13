@@ -6,13 +6,13 @@ v-content(v-if='!isLoading')
       td.text-xs-left(style='bold') {{ props.item.categoryName }}
       td.text-xs-left {{ props.item.total}}
       td.px-0
-        template(v-for='item in props.item.storageQuantities')
+        template(v-for='(item, index) in props.item.storageQuantities')
           td.text-xs-left.pl-4(style='min-width: 100%;') {{ item.storageName }}
-          v-divider
+          v-divider(v-if="index !== (props.item.storageQuantities.length-1)")
       td.px-0
-        template(v-for='item in props.item.storageQuantities')
+        template(v-for='(item,index) in props.item.storageQuantities')
           td.text-xs-left.pl-4 {{ item.quantity }}
-          v-divider
+          v-divider(v-if="index !== (props.item.storageQuantities.length-1)")
 </template>
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";

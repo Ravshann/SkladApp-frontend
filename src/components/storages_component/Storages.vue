@@ -1,29 +1,42 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Расходы по  {{getDate()}}
+    h2.view-title Склады по  {{getDate()}}
     v-layout(row)
-      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
+      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details)
       v-spacer
       v-spacer
       v-spacer
-      advanced-sort
-      excel-generator
-  table-outgoing(:search='search')    
+      
+      //- outgoing-record-form
+      //- incoming-record-form
+      //- advanced-sort(:search='search')
+      //- excel-generator
+  table-storages(:search='search')
+  
 </template>
+
 <script>
-import TableOutgoing from "./TableOutgoing";
-import AdvancedSort from "./AdvancedSort";
-import ExcelGenerator from "./ExcelGenerator";
+import TableStorages from "./TableStorages"
+// import ListClients from "./ListClients";
+// import OutgoingRecordForm from "./OutgoingRecordForm";
+// import IncomingRecordForm from "./IncomingRecordForm";
+// import AdvancedSort from "./AdvancedSort";
+// import ExcelGenerator from "./ExcelGenerator";
+
 export default {
-  name: "Outgoing",
+  name: "Clients",
   components: {
-    TableOutgoing,
-    AdvancedSort,
-    ExcelGenerator
+    TableStorages
+    // OutgoingRecordForm,
+    // IncomingRecordForm,
+    // AdvancedSort,
+    // ExcelGenerator
   },
+
   data() {
     return {
+      isLoading: false,
       search: ""
     };
   },
@@ -49,6 +62,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .view-title {
   text-align: center;

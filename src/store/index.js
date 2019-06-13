@@ -8,6 +8,9 @@ import categories from "./modules/categories"
 import storages from "./modules/storages"
 import products from "./modules/products"
 import remainders from "./modules/remainders"
+import date from "./modules/date"
+import defected from "./modules/defected"
+import returned from "./modules/returned"
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -20,6 +23,9 @@ export default new Vuex.Store({
         products,
         categories,
         remainders,
+        date,
+        defected,
+        returned
     },
 
 })

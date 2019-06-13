@@ -15,13 +15,15 @@ export default {
     this.getClients();
     this.getProducts();
     this.getStorages();
+    this.getDate();
   },
   methods: {
     ...mapMutations({
       load_suppliers: "suppliers/load_suppliers",
       load_clients: "clients/load_clients",
       load_products: "products/load_products",
-      load_storages: "storages/load_storages"
+      load_storages: "storages/load_storages",
+      load_date: "date/load_date"
     }),
     async getSuppliers() {
       const { data } = await suppliersRepository.get();
@@ -38,6 +40,15 @@ export default {
     async getStorages() {
       const { data } = await storagesRepository.get();
       this.load_storages(data);
+    },
+    getDate: function() {
+      var cur_date_vue = new Date();
+      var month = ("0" + (cur_date_vue.getMonth() + 1)).slice(-2);
+      var date = ("0" + cur_date_vue.getDate()).slice(-2);
+      var year = cur_date_vue.getFullYear();
+      var date_formatted = year + "/" + month + "/" + date;
+      this.load_date(date_formatted);
+      return date_formatted;
     }
   }
 };

@@ -20,17 +20,15 @@ v-app.white
     a.staff(href='#') Нодир
     router-link.log-out(tag='a' :to="{ name: 'login'}" replace='')
       i.fas.fa-sign-out-alt
-  router-view
   loader
+  router-view
+  
 </template>
 <script>
-import remainder from "./remainder_component/Remainder";
-import outgoing from "./outgoing_component/Outgoing"
 import loader from "./Loader"
 export default {
   name: "dashboard",
   components: {
-    remainder,
     loader
   },
   data: function() {
@@ -42,7 +40,7 @@ export default {
       sections: [
         {
           title: "Остаток",
-          icon: "home",
+          icon: "view_list",
           link: "/"
         },
         {
@@ -58,10 +56,10 @@ export default {
         {
           title: "Возвраты",
           icon: "$vuetify.icons.return",
-          link: "/returns"
+          link: "/returned"
         },
         {
-          title: "Деффектные",
+          title: "Дефектные",
           icon: "$vuetify.icons.defects",
           link: "/defected"
         },
@@ -73,12 +71,17 @@ export default {
         {
           title: "Товары",
           icon: "$vuetify.icons.goods",
-          link: "/goods"
+          link: "/products"
         },
         {
           title: "Поставщики",
           icon: "local_shipping",
           link: "/suppliers"
+        },
+         {
+          title: "Склады",
+          icon: "home",
+          link: "/storages"
         }
       ]
     };
