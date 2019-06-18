@@ -6,14 +6,23 @@ v-content
       td.text-xs-left {{ props.item.region}}
       td.text-xs-left
         span
-          v-icon(@click="fun(props.item)") create    
+          v-icon(@click="editRow(props.item)") create 
+  clients-create-form(
+    v-if="edit" 
+    :appear="edit" 
+    @edit-form-closed="edit=false" 
+    :edit_object = "edit_object")                
 </template>
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("clients");
 import { mapGetters, mapMutations } from "vuex";
+import ClientsCreateForm from "./ClientsCreateForm";
 export default {
   name: "table-clients",
+  components: {
+    ClientsCreateForm
+  },
   props: {
     search: ""
   },
@@ -29,13 +38,16 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
+      edit: false,
+      edit_object: Object,
       headers: [
         {
           text: "Имя(клиент)",
           sortable: false,
           value: "client_name"
         },
-        { text: "Регион", sortable: false, value: "region"  },
+        { text: "Регион", sortable: false, value: "region" },
         { text: "", sortable: false }
       ]
     };
@@ -45,8 +57,14 @@ export default {
       load_data: "clients/load_clients"
     }),
     async getData() {
+      this.isLoading = true;
       const { data } = await repository.get();
+      this.isLoading = false;
       this.load_data(data);
+    },
+    editRow(row) {
+      this.edit_object = row;
+      this.edit = true;
     }
   }
 };

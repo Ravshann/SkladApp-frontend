@@ -5,11 +5,9 @@ export default {
     clients: [],
   },
   getters: {
-    get_clients: function (state) {
-      return state.clients;
-    },
+    get_clients(state) { return state.clients; },
   },
   mutations: {
-    load_clients: function (state, payload) { state.clients = payload; },
+    load_clients(state, payload) { state.clients = payload; },
   },
 }

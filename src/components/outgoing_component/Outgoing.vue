@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Расходы по  {{getDate()}}
+    h2.view-title Расходы по  {{today}}
     v-layout(row)
       v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
       v-spacer
@@ -15,6 +15,8 @@ div
 import TableOutgoing from "./TableOutgoing";
 import AdvancedSort from "./AdvancedSort";
 import ExcelGenerator from "./ExcelGenerator";
+import { mapGetters } from "vuex";
+
 export default {
   name: "Outgoing",
   components: {
@@ -28,25 +30,11 @@ export default {
     };
   },
   computed: {
-    search_computed: {
-      get() {
-        return this.search;
-      },
-      set(data) {
-        this.search = data;
-      }
-    }
+    ...mapGetters({
+      today: "date/get_date"
+    })
   },
-  methods: {
-    getDate: function() {
-      var cur_date_vue = new Date();
-      var month = ("0" + (cur_date_vue.getMonth() + 1)).slice(-2);
-      var date = ("0" + cur_date_vue.getDate()).slice(-2);
-      var year = cur_date_vue.getFullYear();
-      var date_formatted_vue = year + "/" + month + "/" + date;
-      return date_formatted_vue;
-    }
-  }
+  methods: {}
 };
 </script>
 <style scoped>

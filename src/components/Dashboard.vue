@@ -1,7 +1,13 @@
 <template lang="pug">
-v-app.white
-  v-navigation-drawer.nav_drawer.lighten(v-model='drawer' :mini-variant='mini' fixed='' app='' width='235')
-    v-list(dark='' v-for="(section, index) in sections" :key="index")
+v-app(id="inspire" white)
+  v-navigation-drawer.nav_drawer.lighten(
+    v-model='drawer' 
+    persistent
+    :mini-variant='mini'
+    :temporary="temporary" 
+    app 
+    width='235')
+    v-list(dark v-for="(section, index) in sections" :key="index")
       v-list-tile(
         :to="section.link == '#' ? '' : section.link" 
         :class="[index===0 ? 'toolbar__item': '']"
@@ -13,27 +19,66 @@ v-app.white
           v-list-tile-title {{section.title}}
         v-list-tile-action
           v-icon arrow_forward_ios
-  v-toolbar.elevation-1(color='white' dark='' fixed='' app='')
-    v-toolbar-side-icon.hamburger-icon(icon='' @click.stop='mini = !mini' light='')
+  v-toolbar.elevation-1(color='white' dark app)
+    v-toolbar-side-icon.hamburger-icon(icon @click.stop='toggleDrawer' light)
     v-spacer
     a.staff(href='#') Зав-Склад
     a.staff(href='#') Нодир
-    router-link.log-out(tag='a' :to="{ name: 'login'}" replace='')
+    router-link.log-out(tag='a' :to="{ name: 'login'}" replace)
       i.fas.fa-sign-out-alt
   loader
   router-view
   
 </template>
 <script>
-import loader from "./Loader"
+import loader from "./Loader";
+function isMobile() {
+  return window.innerWidth < 1025;
+}
 export default {
   name: "dashboard",
   components: {
     loader
   },
-  data: function() {
+  mounted() {
+    window.addEventListener("resize", this.onResize);
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.onResize);
+  },
+  methods: {
+    toggleDrawer() {
+      let mobile = isMobile();
+      if (mobile) {
+        this.drawer = !this.drawer;
+        this.mini = false;
+      } else {
+        this.drawer = true;
+        this.mini = !this.mini;
+      }
+    },
+    onResize() {
+      const mobile = isMobile();
+
+      if (mobile) {
+        if (this.drawer && this.mini) {
+          this.drawer = false;
+        }
+        this.mini = false;
+      } else {
+        if (!this.drawer) {
+          this.mini = true;
+        }
+        this.drawer = true;
+      }
+      this.temporary = mobile;
+    }
+  },
+  data() {
+    const mobile = isMobile();
     return {
-      drawer: null,
+      temporary: mobile,
+      drawer: true,
       mini: false,
       first: true,
       selected_view: "Остаток",
@@ -78,7 +123,7 @@ export default {
           icon: "local_shipping",
           link: "/suppliers"
         },
-         {
+        {
           title: "Склады",
           icon: "home",
           link: "/storages"

@@ -1,23 +1,23 @@
 <template lang="pug">
 div
   // button for opening dialog
-  v-btn(color='#FF8C00' dark='' @click='dialog = true') Добавить
+  v-btn(color='#FF8C00' dark @click='dialog = true') Добавить
   // dialog for 'outgoing' button
-  v-dialog(v-model='dialog' fullscreen='' hide-overlay='' transition='dialog-bottom-transition' scrollable='')
-    v-card(title='')
+  v-dialog(v-model='dialog' fullscreen hide-overlay transition='dialog-bottom-transition' scrollable)
+    v-card(title)
       // toolbar button for saving
-      v-toolbar(card='' dark='' color='#FF8C00')
-        v-btn(icon='' dark='' @click='dialog = false' title='свернуть')
+      v-toolbar(card dark color='#FF8C00')
+        v-btn(icon dark @click='dialog = false' title='свернуть')
           v-icon close
         v-toolbar-title Возврат
         v-spacer
         v-toolbar-items
-          v-btn(dark='' flat='' @click='save_records = true') Сохранить
+          v-btn(dark flat @click='save_records = true') Сохранить
         // dialog for confirmation
         v-dialog(v-model='save_records' max-width='290')
           v-card
-            v-card-title.headline make exports?
-            v-card-text all exports will be saved.
+            v-card-title.headline save changes?
+            v-card-text all changes will be saved.
             v-card-actions
               v-spacer
               v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
@@ -25,8 +25,8 @@ div
         // dialog for notifiying
         v-dialog(v-model='inform_dialog_done' max-width='290')
           v-card
-            v-card-title.headline exports saved
-            v-card-text all exports are saved.
+            v-card-title.headline changes saved
+            v-card-text all changes are saved.
             v-card-actions
               v-spacer
               v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
@@ -39,7 +39,7 @@ div
           :items='clients' 
           label='От кого(клиент)' 
           prepend-icon='person' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='client_name'
           return-object)
         v-autocomplete(
@@ -47,7 +47,7 @@ div
           :items='products' 
           label='Наименование товара' 
           prepend-icon='sort' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='product_name' 
           return-object)
         v-autocomplete(
@@ -55,14 +55,20 @@ div
           :items='storages' 
           label='Склад' 
           prepend-icon='home' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='storage_name'
           return-object)
-        v-text-field#quantity(v-model.number='quantity' type='number' name='quantity' label='Количество' prepend-icon='edit' item-text='quantity' placeholder='0', )
-        v-btn(fab='' dark='' color='indigo' justify-center='' @click.prevent='add' title='добавить')
-          v-icon(dark='') add
-        v-btn(fab='' dark='' color='red' justify-center='' @click.prevent='clearAll' title='очистить')
-          v-icon(dark='') remove
+        v-text-field(
+          v-model.number='quantity' 
+          type='number'  
+          label='Количество' 
+          prepend-icon='edit' 
+          item-text='quantity' 
+          placeholder='0')
+        v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
+          v-icon(dark) add
+        v-btn(fab dark color='red' justify-center @click.prevent='clearAll' title='очистить')
+          v-icon(dark) remove
         v-data-table(:headers='headers' :items='list')
           template(v-slot:items='props')
             td(sortable='true') {{ props.item.record_count }}
@@ -190,7 +196,6 @@ export default {
         var object = this.detailed_list;
         //make axios call to save it in backend
         repository.save(object);
-
         //clear data
         this.clearAll();
       } else {

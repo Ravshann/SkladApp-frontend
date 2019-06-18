@@ -7,23 +7,29 @@ v-content
       td.text-xs-left(style='bold') {{ props.item.category.category_name }}
       td.text-xs-left
         span
-          v-icon(@click="fun(props.item)") create  
+          v-icon(@click="editRow(props.item)") create  
       td.text-xs-left
         span
-          v-icon(@click="show(props.item)") visibility        
+          v-icon(@click="show(props.item)") visibility 
+  product-edit-form(
+    v-if="edit" 
+    :appear="edit" 
+    @edit-form-closed="edit=false" 
+    :edit_object = "edit_object")               
 </template>
 <script>
-import AttributesDialog from "./AttributesDialog"
+import AttributesDialog from "./AttributesDialog";
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("products");
 import { mapGetters, mapMutations } from "vuex";
-
+import ProductEditForm from "./ProductEditForm";
 export default {
   name: "table-products",
   props: {
     search: ""
   },
-  components:{
+  components: {
+    ProductEditForm,
     AttributesDialog
   },
   created() {
@@ -39,6 +45,9 @@ export default {
   data() {
     return {
       product: Object(),
+      edit: false,
+      edit_object: Object,
+      isLoading: false,
       show_product: false,
       headers: [
         {
@@ -57,12 +66,18 @@ export default {
       load_data: "products/load_products"
     }),
     async getData() {
+      this.isLoading = true;
       const { data } = await repository.get();
+      this.isLoading = false;
       this.load_data(data);
     },
     show(object) {
       this.show_product = true;
       this.product = object;
+    },
+    editRow(row) {
+      this.edit_object = row;
+      this.edit = true;
     }
   }
 };

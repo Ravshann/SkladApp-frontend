@@ -2,8 +2,8 @@
 div
   v-content
     h2.view-title Остаток по  {{getDate()}}
-    v-layout(row='')
-      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details='')
+    v-layout(row)
+      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
       v-spacer
       v-spacer
       v-spacer
@@ -30,22 +30,11 @@ export default {
     AdvancedSort,
     ExcelGenerator
   },
-
   data() {
     return {
       isLoading: false,
       search: ""
     };
-  },
-  computed: {
-    search_computed: {
-      get() {
-        return this.search;
-      },
-      set(data) {
-        this.search = data;
-      }
-    }
   },
   methods: {
     getDate: function() {

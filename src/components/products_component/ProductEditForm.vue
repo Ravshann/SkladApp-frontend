@@ -65,15 +65,16 @@ div
 import DataPickMenu from "../DataPickMenu";
 import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
-const incomingRepository = RepositoryFactory.get("incoming");
+const productsRepository = RepositoryFactory.get("products");
 export default {
-  name: "incoming-record-edit-form",
+  name: "product-edit-form",
   components: { DataPickMenu },
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
+    console.log(this.edit_object);
     this.supplier = {
       supplier_name: this.edit_object.supplier_name,
       supplier_ID: this.edit_object.supplier_ID
@@ -120,7 +121,7 @@ export default {
       this.$emit("edit-form-closed", false);
     },
     async refresh() {
-      const { data } = await incomingRepository.get();
+      const { data } = await productsRepository.get();
       this.load_incoming_data(data);
     },
     saveChanges: function(choice) {
@@ -138,7 +139,7 @@ export default {
           record_ID: this.edit_object.record_ID
         };
         
-        incomingRepository.update(formatted);
+        productsRepository.update(formatted);
         this.close();
       } else {
         this.save_dialog = false;

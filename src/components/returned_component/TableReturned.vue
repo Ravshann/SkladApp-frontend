@@ -9,14 +9,23 @@ v-content
       td.text-xs-left {{ props.item.record_datetime }}
       td.text-xs-left
         span
-          v-icon(@click="fun(props.item)") create    
+          v-icon(@click="editRow(props.item)") create 
+  returned-record-edit-form(
+    v-if="edit" 
+    :appear="edit" 
+    @edit-form-closed="edit=false" 
+    :edit_object = "edit_object")           
 </template>
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("returned");
 import { mapGetters, mapMutations } from "vuex";
+import ReturnedRecordEditForm from "./ReturnedRecordEditForm";
 export default {
   name: "table-returned",
+  components: {
+    ReturnedRecordEditForm
+  },
   props: {
     search: ""
   },
@@ -30,29 +39,35 @@ export default {
       returned_records: "returned/get_returned_data"
     })
   },
-  data() {
-    return {
-      headers: [
-        {
-          text: "Наименование товара",
-          sortable: false
-        },
-        { text: "Количество", sortable: false },
-        { text: "Склад", sortable: false },
-        { text: "От кого(клиент)", sortable: false },
-        { text: "Дата", sortable: false },
-        { text: "", sortable: false }
-      ]
-    };
-  },
   methods: {
     ...mapMutations({
       load_data: "returned/load_returned_data"
     }),
     async getReturnedData() {
+      this.isLoading = true;
       const { data } = await repository.get();
+      this.isLoading = false;
       this.load_data(data);
+    },
+    editRow(row) {
+      this.edit_object = row;
+      this.edit = true;
     }
+  },
+  data() {
+    return {
+      isLoading: false,
+      edit: false,
+      edit_object: Object,
+      headers: [
+        { text: "Наименование товара", sortable: false, value: "product_name" },
+        { text: "Количество", sortable: false, value: "quantity" },
+        { text: "Склад", sortable: false, value: "product_name" },
+        { text: "От кого(клиент)", sortable: false, value: "client_name" },
+        { text: "Дата", sortable: false, value: "record_datetime" },
+        { text: "", sortable: false }
+      ]
+    };
   }
 };
 </script>

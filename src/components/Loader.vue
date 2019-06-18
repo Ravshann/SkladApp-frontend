@@ -23,7 +23,8 @@ export default {
       load_clients: "clients/load_clients",
       load_products: "products/load_products",
       load_storages: "storages/load_storages",
-      load_date: "date/load_date"
+      load_date: "date/load_date",
+      load_dashed_date: "date/load_dashed_date"
     }),
     async getSuppliers() {
       const { data } = await suppliersRepository.get();
@@ -48,7 +49,8 @@ export default {
       var year = cur_date_vue.getFullYear();
       var date_formatted = year + "/" + month + "/" + date;
       this.load_date(date_formatted);
-      return date_formatted;
+      let dashed = year + "-" + month + "-" + date;
+      this.load_dashed_date(dashed);
     }
   }
 };

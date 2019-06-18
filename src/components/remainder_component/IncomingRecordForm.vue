@@ -1,17 +1,17 @@
 <template lang="pug">
 div
   // button for opening dialog
-  v-btn(color='primary' dark='' @click='incoming_dialog = true') Приход
+  v-btn(color='primary' dark @click='incoming_dialog = true') Приход
   // dialog for 'outgoing' button
-  v-dialog(v-model='incoming_dialog' fullscreen='' hide-overlay='' transition='dialog-bottom-transition' scrollable='')
-    v-card(title='')
-      v-toolbar(card='' dark='' color='primary')
-        v-btn(icon='' dark='' @click='incoming_dialog = false' title='свернуть')
+  v-dialog(v-model='incoming_dialog' fullscreen hide-overlay transition='dialog-bottom-transition' scrollable)
+    v-card(title)
+      v-toolbar(card dark color='primary')
+        v-btn(icon dark @click='incoming_dialog = false' title='свернуть')
           v-icon close
         v-toolbar-title Приход
         v-spacer
         v-toolbar-items
-          v-btn(dark='' flat='' @click='save_incoming_records = true') Добавить
+          v-btn(dark flat @click='save_incoming_records = true') Добавить
         // dialog for confirmation
         v-dialog(v-model='save_incoming_records' max-width='290')
           v-card
@@ -38,7 +38,7 @@ div
           :items='suppliers' 
           label='Поставщики' 
           prepend-icon='local_shipping' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='supplier_name'
           return-object)
         v-autocomplete(
@@ -46,7 +46,7 @@ div
           :items='products' 
           label='Наименование товара' 
           prepend-icon='sort' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='product_name'
           return-object)
         v-autocomplete(
@@ -54,14 +54,14 @@ div
           :items='storages' 
           label='Склад' 
           prepend-icon='home' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='storage_name'
           return-object)
         v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
-        v-btn(fab='' dark='' color='indigo' justify-center='' @click.prevent='add' title='добавить')
-          v-icon(dark='') add
-        v-btn(fab='' dark='' color='red' justify-center='' @click.prevent='clearAll' title='очистить')
-          v-icon(dark='') remove
+        v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
+          v-icon(dark) add
+        v-btn(fab dark color='red' justify-center @click.prevent='clearAll' title='очистить')
+          v-icon(dark) remove
         v-data-table(:headers='headers' :items='importdata')
           template(v-slot:items='props')
             td(sortable='true') {{ props.item.record_count }}
@@ -74,6 +74,7 @@ div
 <script>
 import DataPickMenu from "../DataPickMenu";
 import RepositoryFactory from "../../services/RepositoryFactory";
+const remainderRepository = RepositoryFactory.get("remainder");
 const incomingRepository = RepositoryFactory.get("incoming");
 import { mapGetters, mapMutations } from "vuex";
 export default {
@@ -110,27 +111,27 @@ export default {
         {
           text: "N#",
           align: "left",
-          value: "number"
+          sortable: false
         },
         {
           text: "Наименование товара",
-          value: "product_name"
+          sortable: false
         },
         {
           text: "Количество",
-          value: "quantity"
+          sortable: false
         },
         {
           text: "Склад",
-          value: "storage_name"
+          sortable: false
         },
         {
           text: "Получатель",
-          value: "supplier_name"
+          sortable: false
         },
         {
           text: "Дата",
-          value: "date"
+          sortable: false
         }
       ]
     };
@@ -147,30 +148,20 @@ export default {
       const { data } = await incomingRepository.get();
       this.load_incoming_data(data);
     },
+    async refreshRemainder() {
+      const { data } = await remainderRepository.get();
+      this.load_remainder_data(data);
+    },
     clearAll: function() {
       this.record_count = 0;
       this.importdata = [];
       this.detailed_import_list = [];
     },
     updateStore() {
-      let new_in = [...this.incoming_data, this.detailed_import_list];
-      this.load_incoming_data(new_in);
-      let newArray = this.remainder_data;
-      this.detailed_import_list.forEach(record => {
-        this.remainder_data.forEach(data => {
-          var newItem = data;
-          if (newItem.productID === record.product_ID) {
-            let index = this.remainder_data.indexOf(newItem);
-            newItem.total += record.quantity;
-            newItem.storageQuantities.forEach(pair => {
-              if (pair.storageID === record.storage_ID)
-                pair.quantity += record.quantity;
-            });
-            newArray[index] = newItem;
-          }
-        });
-      });
-      this.load_remainder_data(newArray);
+      setTimeout(() => {
+        this.refreshRemainder();
+        this.getIncomingData();
+      }, 1000);
     },
     add() {
       this.record_count++;
@@ -202,12 +193,10 @@ export default {
       if (choice) {
         this.inform_dialog_done = true;
         this.save_incoming_records = false;
-        // save data
-        var object = this.detailed_import_list;
+        //make axios call to save it in backend
+        incomingRepository.save(this.detailed_import_list);
         //update store
         this.updateStore();
-        //make axios call to save it in backend
-        incomingRepository.save(object);
         //clear data
         this.clearAll();
       } else {

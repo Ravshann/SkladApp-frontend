@@ -31,12 +31,12 @@ div
         data-pick-menu(@date-selected-event='dateSelected' :custom_date='record_datetime')
           // autocomplete fields
         v-autocomplete(
-          v-model='supplier' 
-          :items="supplier_list" 
-          label='Поставщик' 
-          prepend-icon='local_shipping' 
+          v-model='client' 
+          :items="client_list" 
+          label='От кого(клиент)' 
+          prepend-icon='person'  
           persistent-hint 
-          item-text='supplier_name'
+          item-text='client_name'
           return-object)
         v-autocomplete(
           v-model='product' 
@@ -65,18 +65,18 @@ div
 import DataPickMenu from "../DataPickMenu";
 import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
-const incomingRepository = RepositoryFactory.get("incoming");
+const returnedRepository = RepositoryFactory.get("returned");
 export default {
-  name: "incoming-record-edit-form",
+  name: "returned-record-edit-form",
   components: { DataPickMenu },
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
-    this.supplier = {
-      supplier_name: this.edit_object.supplier_name,
-      supplier_ID: this.edit_object.supplier_ID
+    this.client = {
+      client_name: this.edit_object.client_name,
+      client_ID: this.edit_object.client_ID
     };
     this.product = {
       product_name: this.edit_object.product_name,
@@ -91,61 +91,60 @@ export default {
   },
   computed: {
     ...mapGetters({
-      supplier_list: "suppliers/get_suppliers",
+      client_list: "clients/get_clients",
       product_list: "products/get_products",
       storage_list: "storages/get_storages",
-      today: "date/get_dashed_date"
+      today_dashed: "date/get_dashed_date"
     })
   },
   data() {
     return {
       save_dialog: false,
       inform_dialog_done: false,
-      date: "",
+      selectedDate: "",
       record_datetime: "",
       quantity: 0,
-      supplier: Object,
+      client: Object,
       product: Object,
       storage: Object
     };
   },
   methods: {
-    dateSelected: function(date) {
-      this.date = date;
+    dateSelected(date) {
+      this.selectedDate = date;
     },
     ...mapMutations({
-      load_incoming_data: "incoming/load_incoming_data"
+      load_returned_data: "returned/load_returned_data"
     }),
     close() {
       this.$emit("edit-form-closed", false);
     },
     async refresh() {
-      const { data } = await incomingRepository.get();
-      this.load_incoming_data(data);
+      const { data } = await returnedRepository.get();
+      this.load_returned_data(data);
     },
-    saveChanges: function(choice) {
+    saveChanges(choice) {
       if (choice) {
         this.inform_dialog_done = true;
         this.save_dialog = false;
         let formatted = {
-          supplier_ID: this.supplier.supplier_ID,
+          client_ID: this.client.client_ID,
           storage_ID: this.storage.storage_ID,
           product_ID: this.product.product_ID,
-          updated_datetime: this.today,
-          record_datetime: this.date,
+          updated_datetime: this.today_dashed,
+          record_datetime: this.selectedDate,
           quantity: this.quantity,
-          inout_type_ID: 2,
+          inout_type_ID: 3,
+          note: "some",
           record_ID: this.edit_object.record_ID
         };
-        
-        incomingRepository.update(formatted);
+        returnedRepository.update(formatted);
         this.close();
       } else {
         this.save_dialog = false;
       }
-      let self = this;
-      setTimeout(function() {
-        self.refresh();
+      setTimeout(() => {
+        this.refresh();
       }, 1000);
     }
   }

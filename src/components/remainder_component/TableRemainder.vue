@@ -44,8 +44,8 @@ export default {
         },
         { text: "Kатегория", value: "category" },
         { text: "Общ. кол-во", value: "total" },
-        { text: "Склад", value: "store_name" },
-        { text: "Количество", value: "quantity" }
+        { text: "Склад", value: "storage_name", sortable: false },
+        { text: "Количество", value: "quantity", sortable: false }
       ]
     };
   },

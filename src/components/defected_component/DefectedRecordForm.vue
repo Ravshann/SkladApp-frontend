@@ -1,22 +1,22 @@
 <template lang="pug">
 div
   // button for opening dialog
-  v-btn(color='#FF8C00' dark='' @click='dialog = true') Добавить
+  v-btn(color='#FF8C00' dark @click='dialog = true') Добавить
   // dialog for 'outgoing' button
-  v-dialog(v-model='dialog' fullscreen='' hide-overlay='' transition='dialog-bottom-transition' scrollable='')
-    v-card(title='')
-      v-toolbar(card='' dark='' color='#FF8C00')
-        v-btn(icon='' dark='' @click='dialog = false' title='свернуть')
+  v-dialog(v-model='dialog' fullscreen hide-overlay transition='dialog-bottom-transition' scrollable)
+    v-card(title)
+      v-toolbar(card dark color='#FF8C00')
+        v-btn(icon dark @click='dialog = false' title='свернуть')
           v-icon close
         v-toolbar-title Дефектный
         v-spacer
         v-toolbar-items
-          v-btn(dark='' flat='' @click='save_records = true') Сохранить
+          v-btn(dark flat @click='save_records = true') Сохранить
         // dialog for confirmation
         v-dialog(v-model='save_records' max-width='290')
           v-card
-            v-card-title.headline make imports?
-            v-card-text all imports will be saved.
+            v-card-title.headline save changes?
+            v-card-text all changes will be saved.
             v-card-actions
               v-spacer
               v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
@@ -24,8 +24,8 @@ div
         // dialog for notifiying
         v-dialog(v-model='inform_dialog_done' max-width='290')
           v-card
-            v-card-title.headline exports saved
-            v-card-text all exports are saved.
+            v-card-title.headline changes saved
+            v-card-text all changes are saved.
             v-card-actions
               v-spacer
               v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
@@ -36,9 +36,9 @@ div
         v-autocomplete(
           v-model='supplier'
           :items='suppliers' 
-          label='Поставщики' 
+          label='Поставщик' 
           prepend-icon='local_shipping' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='supplier_name'
           return-object)
         v-autocomplete(
@@ -46,7 +46,7 @@ div
           :items='products' 
           label='Наименование товара' 
           prepend-icon='sort' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='product_name'
           return-object)
         v-autocomplete(
@@ -54,14 +54,14 @@ div
           :items='storages' 
           label='Склад' 
           prepend-icon='home' 
-          persistent-hint='' 
+          persistent-hint 
           item-text='storage_name'
           return-object)
         v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
-        v-btn(fab='' dark='' color='indigo' justify-center='' @click.prevent='add' title='добавить')
-          v-icon(dark='') add
-        v-btn(fab='' dark='' color='red' justify-center='' @click.prevent='clearAll' title='очистить')
-          v-icon(dark='') remove
+        v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
+          v-icon(dark) add
+        v-btn(fab dark color='red' justify-center @click.prevent='clearAll' title='очистить')
+          v-icon(dark) remove
         v-data-table(:headers='headers' :items='list')
           template(v-slot:items='props')
             td(sortable='true') {{ props.item.record_count }}
@@ -180,20 +180,16 @@ export default {
       if (choice) {
         this.inform_dialog_done = true;
         this.save_records = false;
-        // save data
-        var object = this.detailed_list;
         //make axios call to save it in backend
-        repository.save(object);
+        repository.save(this.detailed_list);
         //clear data
         this.clearAll();
       } else {
         this.save_records = false;
       }
-      let self = this;
-      //update store
-      setTimeout(function() {
-        self.updateStore();
-      }, 500);
+      setTimeout(() => {
+        this.updateStore();
+      }, 1000);
     }
   }
 };

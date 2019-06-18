@@ -34,15 +34,7 @@ export default {
   computed: {
     ...mapGetters({
       current_date: "date/get_date"
-    }),
-    search_computed: {
-      get() {
-        return this.search;
-      },
-      set(data) {
-        this.search = data;
-      }
-    }
+    })
   }
 };
 </script>

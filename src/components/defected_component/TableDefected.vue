@@ -9,14 +9,23 @@ v-content
       td.text-xs-left {{ props.item.record_datetime }}
       td.text-xs-left
         span
-          v-icon(@click="fun(props.item)") create    
+          v-icon(@click="editRow(props.item)") create
+  defected-record-edit-form(
+    v-if="edit" 
+    :appear="edit" 
+    @edit-form-closed="edit=false" 
+    :edit_object = "edit_object")            
 </template>
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("defected");
 import { mapGetters, mapMutations } from "vuex";
+import DefectedRecordEditForm from "./DefectedRecordEditForm";
 export default {
   name: "table-defected",
+  components: {
+    DefectedRecordEditForm
+  },
   props: {
     search: ""
   },
@@ -32,15 +41,19 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
+      edit: false,
+      edit_object: Object,
       headers: [
         {
           text: "Наименование товара",
-          sortable: false
+          sortable: false,
+          value: "product_name"
         },
-        { text: "Количество", sortable: false },
-        { text: "Склад", sortable: false },
-        { text: "От кого(поставщик)", sortable: false },
-        { text: "Дата", sortable: false },
+        { text: "Количество", value: "quantity", sortable: false },
+        { text: "Склад", value: "storage_name", sortable: false },
+        { text: "От кого(поставщик)", value: "supplier_name", sortable: false },
+        { text: "Дата", value: "record_datetime", sortable: false },
         { text: "", sortable: false }
       ]
     };
@@ -50,8 +63,14 @@ export default {
       load_data: "defected/load_data"
     }),
     async getData() {
+      this.isLoading = true;
       const { data } = await repository.get();
+      this.isLoading = false;
       this.load_data(data);
+    },
+    editRow(row) {
+      this.edit_object = row;
+      this.edit = true;
     }
   }
 };

@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Клиенты по  {{getDate()}}
+    h2.view-title Товары по  {{today}}
     v-layout(row)
       v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details)
       v-spacer
@@ -17,7 +17,8 @@ div
 </template>
 
 <script>
-import TableProducts from "./TableProducts"
+import TableProducts from "./TableProducts";
+import { mapGetters, mapMutations } from "vuex";
 // import ListClients from "./ListClients";
 // import OutgoingRecordForm from "./OutgoingRecordForm";
 // import IncomingRecordForm from "./IncomingRecordForm";
@@ -36,30 +37,15 @@ export default {
 
   data() {
     return {
-      isLoading: false,
       search: ""
     };
   },
   computed: {
-    search_computed: {
-      get() {
-        return this.search;
-      },
-      set(data) {
-        this.search = data;
-      }
-    }
+    ...mapGetters({
+      today: "date/get_date"
+    })
   },
-  methods: {
-    getDate: function() {
-      var cur_date_vue = new Date();
-      var month = ("0" + (cur_date_vue.getMonth() + 1)).slice(-2);
-      var date = ("0" + cur_date_vue.getDate()).slice(-2);
-      var year = cur_date_vue.getFullYear();
-      var date_formatted_vue = year + "/" + month + "/" + date;
-      return date_formatted_vue;
-    }
-  }
+  methods: {}
 };
 </script>
 

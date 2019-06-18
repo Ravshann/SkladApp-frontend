@@ -1,8 +1,7 @@
 import Repository from "./Repository";
 const api = "/returned";
 export default {
-    save: function (payload) { Repository.post(`${api + "/save"}`, payload); },
-    get: function () {
-        return Repository.get(`${api}`);
-    },
+    update(payload) { Repository.post(`${api + "/update"}`, payload); },
+    save(payload) { Repository.post(`${api + "/save"}`, payload); },
+    get() { return Repository.get(`${api}`); },
 }

@@ -65,9 +65,9 @@ div
 import DataPickMenu from "../DataPickMenu";
 import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
-const incomingRepository = RepositoryFactory.get("incoming");
+const defectedRepository = RepositoryFactory.get("defected");
 export default {
-  name: "incoming-record-edit-form",
+  name: "defected-record-edit-form",
   components: { DataPickMenu },
   props: {
     appear: Boolean,
@@ -114,14 +114,14 @@ export default {
       this.date = date;
     },
     ...mapMutations({
-      load_incoming_data: "incoming/load_incoming_data"
+      load_defected_data: "defected/load_data"
     }),
     close() {
       this.$emit("edit-form-closed", false);
     },
     async refresh() {
-      const { data } = await incomingRepository.get();
-      this.load_incoming_data(data);
+      const { data } = await defectedRepository.get();
+      this.load_defected_data(data);
     },
     saveChanges: function(choice) {
       if (choice) {
@@ -134,18 +134,16 @@ export default {
           updated_datetime: this.today,
           record_datetime: this.date,
           quantity: this.quantity,
-          inout_type_ID: 2,
+          inout_type_ID: 4,
           record_ID: this.edit_object.record_ID
         };
-        
-        incomingRepository.update(formatted);
+        defectedRepository.update(formatted);
         this.close();
       } else {
         this.save_dialog = false;
       }
-      let self = this;
-      setTimeout(function() {
-        self.refresh();
+      setTimeout(() => {
+        this.refresh();
       }, 1000);
     }
   }

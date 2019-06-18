@@ -15,13 +15,12 @@ v-content
       td.text-xs-left
         span
           v-icon(@click="editRow(props.item)") create   
-  incoming-record-edit-form(:appear="edit" @edit-form-closed="edit=false")                    
+  incoming-record-edit-form(v-if="edit" :appear="edit" @edit-form-closed="edit=false" :edit_object = "edit_object")                    
 </template>
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("incoming");
-
 import IncomingRecordEditForm from "./IncomingRecordEditForm";
 export default {
   name: "table-incoming",
@@ -39,15 +38,13 @@ export default {
   computed: {
     //this is computed value 'incoming_records' which is bound to store
     ...mapGetters({
-      incoming_records: "incoming/get_incoming_data",
-      edited_record: "incoming/get_edited_record"
+      incoming_records: "incoming/get_incoming_data"
     })
   },
   methods: {
     //this is for loading data to store
     ...mapMutations({
-      load_incoming_data: "incoming/load_incoming_data",
-      send_record_to_edit: "incoming/save_edited_record"
+      load_incoming_data: "incoming/load_incoming_data"
     }),
     async getIncomingData() {
       this.isLoading = true;
@@ -56,26 +53,26 @@ export default {
       this.load_incoming_data(data);
     },
     editRow(row) {
+      this.edit_object = row;
       this.edit = true;
-      this.send_record_to_edit(row);
-      console.log(this.edited_record)
     }
   },
   data: function() {
     return {
       isLoading: false,
       edit: false,
+      edit_object: Object,
       headers: [
         {
           text: "Наименование товара",
           value: "product_name",
           sortable: false
         },
-        { text: "Количество", value: "quantity" },
-        { text: "Склад", value: "storage_name" },
-        { text: "От кого", value: "supplier_name" },
-        { text: "Дата", value: "record_datetime" },
-        { text: "", value: "edit_button" }
+        { text: "Количество", value: "quantity", sortable: false },
+        { text: "Склад", value: "storage_name", sortable: false },
+        { text: "От кого", value: "supplier_name", sortable: false },
+        { text: "Дата", value: "record_datetime", sortable: false },
+        { text: "", sortable: false }
       ]
     };
   }
