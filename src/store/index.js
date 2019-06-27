@@ -11,6 +11,7 @@ import remainders from "./modules/remainders"
 import date from "./modules/date"
 import defected from "./modules/defected"
 import returned from "./modules/returned"
+import attributes from "./modules/attributes"
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -25,7 +26,8 @@ export default new Vuex.Store({
         remainders,
         date,
         defected,
-        returned
+        returned,
+        attributes
     },
 
 })

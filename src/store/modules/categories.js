@@ -5,11 +5,11 @@ export default {
     categories: [],
   },
   getters: {
-    get_categories: function (state) {
+    get_categories(state) {
       return state.categories;
     },
   },
   mutations: {
-    load_categories: function (state, payload) { state.categories = payload; },
+    load_categories(state, payload) { state.categories = payload; },
   },
 }

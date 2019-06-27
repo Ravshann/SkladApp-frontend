@@ -5,11 +5,11 @@ export default {
     suppliers: [],
   },
   getters: {
-    get_suppliers: function (state) {
+    get_suppliers(state) {
       return state.suppliers;
-    },
+    }
   },
   mutations: {
-    load_suppliers: function (state, payload) { state.suppliers = payload; },
+    load_suppliers(state, payload) { state.suppliers = payload; },
   },
 }

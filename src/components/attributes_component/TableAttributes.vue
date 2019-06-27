@@ -1,39 +1,35 @@
 <template lang="pug">
 v-content
-  v-data-table.elevation-0.product-table(:headers='headers' :items='suppliers' :rows-per-page-items='[25,50]' :search='search')
+  v-data-table.elevation-0.product-table(:headers='headers' :items='attributes' :rows-per-page-items='[25,50]' :search='search')
     template(v-slot:items='props')
-      td {{ props.item.supplier_name }}
+      td {{ props.item.attribute_name }}
       td.text-xs-left
         span
           v-icon(@click="editRow(props.item)") create 
-  edit-supplier-form(
-    v-if="edit" 
-    :appear="edit" 
-    @edit-form-closed="edit=false" 
-    :edit_object = "edit_object")            
+  edit-attribute-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")            
 </template>
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
-const repository = RepositoryFactory.get("suppliers");
+const repository = RepositoryFactory.get("attributes");
 import { mapGetters, mapMutations } from "vuex";
-import EditSupplierForm from "./EditSupplierForm";
+import EditAttributeForm from "./EditAttributeForm";
 
 export default {
-  name: "table-suppliers",
+  name: "table-attributes",
   props: {
-    search: ""
+    search: String
   },
   components: {
-    EditSupplierForm
+    EditAttributeForm
   },
   created() {
-    if (this.suppliers.length === 0) {
+    if (this.attributes.length === 0) {
       this.getData();
     }
   },
   computed: {
     ...mapGetters({
-      suppliers: "suppliers/get_suppliers"
+      attributes: "attributes/get_attributes"
     })
   },
   data() {
@@ -41,24 +37,20 @@ export default {
       edit: false,
       edit_object: Object,
       headers: [
-        {
-          text: "Имя(поставщик)",
-          sortable: false,
-          value: "supplier_name"
-        },
+        { text: "Параметр продуктa", value: "attribute_name", sortable: false },
         { text: "", sortable: false }
       ]
     };
   },
   methods: {
     ...mapMutations({
-      load_data: "suppliers/load_suppliers"
+      load_data: "attributes/load_attributes"
     }),
     async getData() {
       const { data } = await repository.get();
       this.load_data(data);
     },
-     editRow(row) {
+    editRow(row) {
       this.edit_object = row;
       this.edit = true;
     }

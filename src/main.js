@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import './plugins/vuetify'
 import App from './App.vue'
+import './plugins/vuetify'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import Vuetify from 'vuetify'
@@ -9,6 +9,7 @@ import store from './store'
 import JsonExcel from 'vue-json-excel'
 
 Vue.component('downloadExcel', JsonExcel)
+
 
 Vue.config.productionTip = false
 
@@ -32,7 +33,7 @@ Vue.use(Vuetify, {
 
 
 new Vue({
-  
+
   render: h => h(App),
   router: router,
   store: store,

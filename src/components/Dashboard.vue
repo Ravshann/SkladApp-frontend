@@ -127,6 +127,16 @@ export default {
           title: "Склады",
           icon: "home",
           link: "/storages"
+        },
+        {
+          title: "Категории",
+          icon: "style",
+          link: "/categories"
+        },
+        {
+          title: "Параметры",
+          icon: "settings_ethernet",
+          link: "/attributes"
         }
       ]
     };
@@ -135,7 +145,7 @@ export default {
 </script>
 <style scoped>
 .toolbar__item {
-  margin-top: 80px;
+  margin-top: 56px;
 }
 
 .staff {

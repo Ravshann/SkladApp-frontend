@@ -7,6 +7,8 @@ import IncomingRepository from "./IncomingRepository";
 import SuppliersRepository from "./SuppliersRepository";
 import ReturnedRepository from "./ReturnedRepository";
 import DefectedRepository from "./DefectedRepository";
+import CategoriesRepository from "./CategoriesRepository";
+import AttributesRepository from "./AttributesRepository";
 
 const repositories = {
     remainder: RemainderRepository,
@@ -17,7 +19,9 @@ const repositories = {
     outgoing: OutgoingRepository,
     incoming: IncomingRepository,
     returned: ReturnedRepository,
-    defected: DefectedRepository
+    defected: DefectedRepository,
+    categories: CategoriesRepository,
+    attributes: AttributesRepository
 };
 
 export default {

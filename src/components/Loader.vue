@@ -5,8 +5,10 @@ div
 import RepositoryFactory from "../services/RepositoryFactory";
 const productsRepository = RepositoryFactory.get("products");
 const storagesRepository = RepositoryFactory.get("storages");
+const categoriesRepository = RepositoryFactory.get("categories");
 const suppliersRepository = RepositoryFactory.get("suppliers");
 const clientsRepository = RepositoryFactory.get("clients");
+const attributesRepository = RepositoryFactory.get("attributes");
 import { mapMutations } from "vuex";
 export default {
   name: "loader-component",
@@ -16,6 +18,8 @@ export default {
     this.getProducts();
     this.getStorages();
     this.getDate();
+    this.getCategories();
+    this.getAttributes();
   },
   methods: {
     ...mapMutations({
@@ -23,9 +27,15 @@ export default {
       load_clients: "clients/load_clients",
       load_products: "products/load_products",
       load_storages: "storages/load_storages",
+      load_attributes: "attributes/load_attributes",
+      load_categories: "categories/load_categories",
       load_date: "date/load_date",
       load_dashed_date: "date/load_dashed_date"
     }),
+    async getAttributes() {
+      const { data } = await attributesRepository.get();
+      this.load_attributes(data);
+    },
     async getSuppliers() {
       const { data } = await suppliersRepository.get();
       this.load_suppliers(data);
@@ -33,6 +43,10 @@ export default {
     async getClients() {
       const { data } = await clientsRepository.get();
       this.load_clients(data);
+    },
+    async getCategories() {
+      const { data } = await categoriesRepository.get();
+      this.load_categories(data);
     },
     async getProducts() {
       const { data } = await productsRepository.get();

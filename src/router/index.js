@@ -11,6 +11,8 @@ import Clients from "../components/clients_component/Clients"
 import Products from "../components/products_component/Products"
 import suppliers from "../components/suppliers_component/Suppliers"
 import storages from "../components/storages_component/Storages"
+import categories from "../components/categories_component/Categories"
+import attributes from "../components/attributes_component/Attributes"
 Vue.use(Router);
 
 const routes = [
@@ -28,6 +30,8 @@ const routes = [
       { path: "products", name: "products", component: Products },
       { path: "suppliers", name: "suppliers", component: suppliers },
       { path: "storages", name: "storages", component: storages },
+      { path: "categories", name: "categories", component: categories },
+      { path: "attributes", name: "attributes", component: attributes },
     ]
   },
 

@@ -8,112 +8,87 @@ div
         v-toolbar-title Изменить данные
         v-spacer
         v-toolbar-items
-          v-btn(dark flat @click='save_dialog = true') Сохранить
-        // dialog for confirmation
-        v-dialog(v-model='save_dialog' max-width='290')
-          v-card
-            v-card-title.headline save changes?
-            v-card-text all changes will be saved.
-            v-card-actions
-              v-spacer
-              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
-              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') cancel
-        // dialog for notifiying
-        v-dialog(v-model='inform_dialog_done' max-width='290')
-          v-card
-            v-card-title.headline changes saved
-            v-card-text all changes are saved.
-            v-card-actions
-              v-spacer
-              v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
+          v-btn(dark flat @click='save_records = true') Сохранить
+        save-changes-dialog(:save_records="save_records" @save-changes-dialog-event="saveChanges")
+        inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
-        // data pick menu
-        data-pick-menu(@date-selected-event='dateSelected' :custom_date='record_datetime')
-          // autocomplete fields
-        v-autocomplete(
-          v-model='supplier' 
-          :items="supplier_list" 
-          label='Поставщик' 
-          prepend-icon='local_shipping' 
-          persistent-hint 
-          item-text='supplier_name'
-          return-object)
-        v-autocomplete(
-          v-model='product' 
-          :items="product_list" 
-          label='Наименование товара' 
-          prepend-icon='sort' 
-          persistent-hint 
-          item-text='product_name' 
-          return-object)
-        v-autocomplete(
-          v-model='storage' 
-          :items="storage_list" 
-          label='Склад' 
-          prepend-icon='home' 
-          persistent-hint 
-          item-text='storage_name' 
-          return-object)
-        v-text-field(
-          v-model.number='quantity' 
-          type='number' 
-          label='Количество' 
-          prepend-icon='edit' 
-          placeholder='0')
+        div
+          v-tabs(
+            color="white"
+            white
+            slider-color="blue")
+            v-tab(
+              v-for="n in 2"
+              :key="n"
+              ripple) {{ tab_headers[n-1] }}  
+            v-tab-item
+              v-text-field(v-model='product_name' label='Наименование товара' prepend-icon='assignment' placeholder='Наименование товара')
+              v-autocomplete(
+                v-model='category' 
+                :items="category_list" 
+                label='Категории' 
+                prepend-icon='style'  
+                persistent-hint 
+                item-text='category_name'
+                return-object)
+            v-tab-item
+              v-layout
+                v-autocomplete(
+                  v-model='selected_attribute' 
+                  :items="attribute_list" 
+                  label='Параметры' 
+                  prepend-icon='settings_ethernet'  
+                  persistent-hint
+                  item-text='attribute_name'
+                  return-object)
+                v-text-field(v-model='attribute_value' label='Значение' prepend-icon='straighten' placeholder='Значение')
 </template>
 <script>
-import DataPickMenu from "../DataPickMenu";
 import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
 const productsRepository = RepositoryFactory.get("products");
+
+import SaveChangesDialog from "../global_components/SaveChangesDialog";
+import InformDialogDone from "../global_components/InformDialog";
 export default {
   name: "product-edit-form",
-  components: { DataPickMenu },
+  components: {
+    SaveChangesDialog,
+    InformDialogDone
+  },
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
     console.log(this.edit_object);
-    this.supplier = {
-      supplier_name: this.edit_object.supplier_name,
-      supplier_ID: this.edit_object.supplier_ID
-    };
-    this.product = {
-      product_name: this.edit_object.product_name,
-      product_ID: this.edit_object.product_ID
-    };
-    this.storage = {
-      storage_name: this.edit_object.storage_name,
-      storage_ID: this.edit_object.storage_ID
-    };
-    this.quantity = this.edit_object.quantity;
-    this.record_datetime = this.edit_object.record_datetime;
+    this.category = this.edit_object.category;
+    this.product_name = this.edit_object.product_name;
+    this.product_ID = this.edit_object.product_ID;
+    // this.selected_attribute = this.edit_object.attribute;
+    // this.attribute_value = this.edit_object.attribute.attribute_value;
   },
   computed: {
     ...mapGetters({
-      supplier_list: "suppliers/get_suppliers",
-      product_list: "products/get_products",
-      storage_list: "storages/get_storages",
-      today: "date/get_dashed_date"
+      category_list: "categories/get_categories",
+      attribute_list: "attributes/get_attributes"
     })
   },
   data() {
     return {
-      save_dialog: false,
+      save_records: false,
       inform_dialog_done: false,
-      date: "",
-      record_datetime: "",
-      quantity: 0,
-      supplier: Object,
-      product: Object,
-      storage: Object
+
+      tab_headers: ["Общая информация", "Параметры продукта"],
+      product_name: "",
+      category: Object,
+      selected_attribute: Object,
+      selected_attributes: [],
+      attribute_value: "",
+      product_ID: ""
     };
   },
   methods: {
-    dateSelected: function(date) {
-      this.date = date;
-    },
     ...mapMutations({
       load_incoming_data: "incoming/load_incoming_data"
     }),
@@ -124,25 +99,25 @@ export default {
       const { data } = await productsRepository.get();
       this.load_incoming_data(data);
     },
-    saveChanges: function(choice) {
+    saveChanges(choice) {
       if (choice) {
         this.inform_dialog_done = true;
-        this.save_dialog = false;
+        this.save_records = false;
         let formatted = {
-          supplier_ID: this.supplier.supplier_ID,
-          storage_ID: this.storage.storage_ID,
-          product_ID: this.product.product_ID,
-          updated_datetime: this.today,
-          record_datetime: this.date,
-          quantity: this.quantity,
-          inout_type_ID: 2,
-          record_ID: this.edit_object.record_ID
+          // supplier_ID: this.supplier.supplier_ID,
+          // storage_ID: this.storage.storage_ID,
+          // product_ID: this.product.product_ID,
+          // updated_datetime: this.today,
+          // record_datetime: this.date,
+          // quantity: this.quantity,
+          // inout_type_ID: 2,
+          // record_ID: this.edit_object.record_ID
         };
-        
-        productsRepository.update(formatted);
+
+        // productsRepository.update(formatted);
         this.close();
       } else {
-        this.save_dialog = false;
+        this.save_records = false;
       }
       let self = this;
       setTimeout(function() {
