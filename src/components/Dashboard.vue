@@ -5,9 +5,9 @@ v-app(id="inspire" white)
     persistent
     :mini-variant='mini'
     :temporary="temporary" 
-    app 
+    app
     width='235')
-    v-list(dark v-for="(section, index) in sections" :key="index")
+    v-list(dark v-for="(section, index) in sections" :key="index" dense)
       v-list-tile(
         :to="section.link == '#' ? '' : section.link" 
         :class="[index===0 ? 'toolbar__item': '']"
