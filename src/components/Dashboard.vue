@@ -6,9 +6,28 @@ v-app(id="inspire" white)
     :mini-variant='mini'
     :temporary="temporary" 
     app
-    width='235')
+    width='250')
     v-list(dark v-for="(section, index) in sections" :key="index" dense)
+      v-list-group( 
+        v-if="index===6"
+        :prepend-icon="section.icon"
+        dense)
+        template(v-slot:activator)
+          v-list-tile
+            v-list-tile-title.prod_title {{section.title}}
+        v-list-tile(
+          v-for="(product_section, index) in product_sections" :key="index"
+          :to="product_section.link == '#' ? '' : product_section.link" 
+          class="white--text"
+          active-class="black")
+          v-list-tile-action.pl-2
+            v-icon {{product_section.icon}}
+          v-list-tile-content
+            v-list-tile-title {{product_section.title}}
+          //- v-list-tile-action
+          //-   v-icon arrow_forward_ios
       v-list-tile(
+        v-else
         :to="section.link == '#' ? '' : section.link" 
         :class="[index===0 ? 'toolbar__item': '']"
         class="white--text"
@@ -16,9 +35,9 @@ v-app(id="inspire" white)
         v-list-tile-action
           v-icon {{section.icon}}
         v-list-tile-content
-          v-list-tile-title {{section.title}}
-        v-list-tile-action
-          v-icon arrow_forward_ios
+          v-list-tile-title.prod_title {{section.title}}
+        //- v-list-tile-action
+        //-   v-icon arrow_forward_ios
   v-toolbar.elevation-1(color='white' dark app)
     v-toolbar-side-icon.hamburger-icon(icon @click.stop='toggleDrawer' light)
     v-spacer
@@ -82,6 +101,23 @@ export default {
       mini: false,
       first: true,
       selected_view: "Остаток",
+      product_sections: [
+        {
+          title: "Товары",
+          icon: "$vuetify.icons.goods",
+          link: "/products"
+        },
+        {
+          title: "Категории",
+          icon: "style",
+          link: "/categories"
+        },
+        {
+          title: "Параметры",
+          icon: "settings_ethernet",
+          link: "/attributes"
+        }
+      ],
       sections: [
         {
           title: "Остаток",
@@ -128,15 +164,21 @@ export default {
           icon: "home",
           link: "/storages"
         },
+
         {
-          title: "Категории",
-          icon: "style",
-          link: "/categories"
+          title: "Компании",
+          icon: "domain",
+          link: "/companies"
         },
         {
-          title: "Параметры",
-          icon: "settings_ethernet",
-          link: "/attributes"
+          title: "Отделы",
+          icon: "layers",
+          link: "/departments"
+        },
+        {
+          title: "Пользователи",
+          icon: "$vuetify.icons.manager_users_icon",
+          link: "/users"
         }
       ]
     };
@@ -146,6 +188,12 @@ export default {
 <style scoped>
 .toolbar__item {
   margin-top: 56px;
+}
+.inner_section_item {
+  margin-left: 56px;
+}
+.prod_title {
+  font-size: 1.2em;
 }
 
 .staff {

@@ -10,7 +10,7 @@ import DefectedRepository from "./DefectedRepository";
 import CategoriesRepository from "./CategoriesRepository";
 import AttributesRepository from "./AttributesRepository";
 import ProductAttributeRepository from "./ProductAttributeRepository";
-
+import CompaniesRepository from "./CompaniesRepository"
 const repositories = {
     remainder: RemainderRepository,
     clients: ClientsRepository,
@@ -23,7 +23,8 @@ const repositories = {
     defected: DefectedRepository,
     categories: CategoriesRepository,
     attributes: AttributesRepository,
-    product_attribute: ProductAttributeRepository
+    product_attribute: ProductAttributeRepository,
+    companies: CompaniesRepository
 };
 
 export default {

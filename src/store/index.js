@@ -12,6 +12,7 @@ import date from "./modules/date"
 import defected from "./modules/defected"
 import returned from "./modules/returned"
 import attributes from "./modules/attributes"
+import companies from "./modules/companies"
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -27,7 +28,8 @@ export default new Vuex.Store({
         date,
         defected,
         returned,
-        attributes
+        attributes,
+        companies
     },
 
 })
