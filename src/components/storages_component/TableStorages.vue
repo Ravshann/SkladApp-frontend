@@ -5,20 +5,25 @@ v-content
       td {{ props.item.storage_name }}
       td.text-xs-left {{ props.item.address}}
       td.text-xs-left {{ props.item.storage_phone}}
-      td.text-xs-left {{ props.item.department_ID}}
-      td.text-xs-left {{ props.item.storage_manager_ID}}
+      td.text-xs-left {{ props.item.department_name}}
+      td.text-xs-left {{ props.item.storage_manager_name}}
       td.text-xs-left
         span
-          v-icon(@click="fun(props.item)") create    
+          v-icon(@click="editRow(props.item)") create
+  edit-storage-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")   
 </template>
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("storages");
 import { mapGetters, mapMutations } from "vuex";
+import EditStorageForm from "./EditStorageForm";
 export default {
   name: "table-storages",
   props: {
     search: ""
+  },
+  components: {
+    EditStorageForm
   },
   created() {
     if (this.storages.length === 0) {
@@ -32,12 +37,14 @@ export default {
   },
   data() {
     return {
+      edit: false,
+      edit_object: Object,
       headers: [
         { text: "Имя(склад)", sortable: false, value: "storage_name" },
         { text: "Адрес", sortable: false, value: "address" },
         { text: "Телефон", sortable: false, value: "phone" },
-        { text: "Отдел", sortable: false, value: "department_ID" },
-        { text: "Зав.склад", sortable: false, value: "storage_manager_ID" },
+        { text: "Отдел", sortable: false, value: "department_name" },
+        { text: "Зав.склад", sortable: false, value: "storage_manager_name" },
         { text: "", sortable: false }
       ]
     };
@@ -49,6 +56,10 @@ export default {
     async getData() {
       const { data } = await repository.get();
       this.load_data(data);
+    },
+    editRow(row) {
+      this.edit_object = row;
+      this.edit = true;
     }
   }
 };

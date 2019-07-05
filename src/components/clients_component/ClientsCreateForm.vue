@@ -13,22 +13,8 @@ div
         v-toolbar-items
           v-btn(dark flat @click='save_records = true') Сохранить
         // dialog for confirmation
-        v-dialog(v-model='save_records' max-width='290')
-          v-card
-            v-card-title.headline save changes?
-            v-card-text all changes will be saved.
-            v-card-actions
-              v-spacer
-              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
-              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') cancel
-        // dialog for notifiying
-        v-dialog(v-model='inform_dialog_done' max-width='290')
-          v-card
-            v-card-title.headline changes saved
-            v-card-text all changes are saved.
-            v-card-actions
-              v-spacer
-              v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
+        save-changes-dialog(:save_records="save_records" @save-changes-dialog-event="saveChanges")
+        inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
         v-text-field(v-model='client_name' label='Имя' prepend-icon='person' placeholder='Имя')
         v-text-field(v-model='region' label='Регион' prepend-icon='place' placeholder='Регион')
@@ -40,15 +26,20 @@ const repository = RepositoryFactory.get("clients");
 
 import { mapMutations } from "vuex";
 import { setTimeout } from "timers";
-
+import SaveChangesDialog from "../global_components/SaveChangesDialog";
+import InformDialogDone from "../global_components/InformDialog";
 export default {
   name: "clients-create-form",
+  components: {
+    SaveChangesDialog,
+    InformDialogDone
+  },
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
-    if (this.edit_object != undefined) {
+    if (this.edit_object !== undefined) {
       this.dialog = true;
       this.show = false;
       this.client_id = this.edit_object.client_ID;
@@ -92,8 +83,8 @@ export default {
           client_name: this.client_name,
           region: this.region
         };
-
-        repository.update(this.client_id, object);
+        if (this.show) repository.save(object);
+        else repository.update(this.client_id, object);
         //clear data
         this.clearAll();
       } else {

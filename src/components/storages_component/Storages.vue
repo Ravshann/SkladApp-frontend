@@ -1,65 +1,34 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Склады по  {{getDate()}}
+    h2.view-title Склады
     v-layout(row)
       v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details)
       v-spacer
       v-spacer
       v-spacer
-      
-      //- outgoing-record-form
-      //- incoming-record-form
-      //- advanced-sort(:search='search')
-      //- excel-generator
+      create-storage-form
   table-storages(:search='search')
   
 </template>
 
 <script>
-import TableStorages from "./TableStorages"
-// import ListClients from "./ListClients";
-// import OutgoingRecordForm from "./OutgoingRecordForm";
-// import IncomingRecordForm from "./IncomingRecordForm";
-// import AdvancedSort from "./AdvancedSort";
-// import ExcelGenerator from "./ExcelGenerator";
+import TableStorages from "./TableStorages";
+import CreateStorageForm from "./CreateStorageForm";
 
 export default {
-  name: "Clients",
+  name: "Storages",
   components: {
-    TableStorages
-    // OutgoingRecordForm,
-    // IncomingRecordForm,
-    // AdvancedSort,
-    // ExcelGenerator
+    TableStorages,
+    CreateStorageForm
   },
 
   data() {
     return {
-      isLoading: false,
       search: ""
     };
   },
-  computed: {
-    search_computed: {
-      get() {
-        return this.search;
-      },
-      set(data) {
-        this.search = data;
-      }
-    }
-  },
-  methods: {
-    getDate: function() {
-      var cur_date_vue = new Date();
-      var month = ("0" + (cur_date_vue.getMonth() + 1)).slice(-2);
-      var date = ("0" + cur_date_vue.getDate()).slice(-2);
-      var year = cur_date_vue.getFullYear();
-      var date_formatted_vue = year + "/" + month + "/" + date;
-      return date_formatted_vue;
-    }
-  }
+ 
 };
 </script>
 

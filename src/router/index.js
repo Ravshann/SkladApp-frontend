@@ -14,6 +14,8 @@ import storages from "../components/storages_component/Storages"
 import categories from "../components/categories_component/Categories"
 import attributes from "../components/attributes_component/Attributes"
 import companies from "../components/companies_component/Companies"
+import users from "../components/users_component/Users"
+import departments from "../components/departments_component/Departments"
 Vue.use(Router);
 
 const routes = [
@@ -34,6 +36,8 @@ const routes = [
       { path: "categories", name: "categories", component: categories },
       { path: "attributes", name: "attributes", component: attributes },
       { path: "companies", name: "companies", component: companies },
+      { path: "users", name: "users", component: users },
+      { path: "departments", name: "departments", component: departments },
     ]
   },
 

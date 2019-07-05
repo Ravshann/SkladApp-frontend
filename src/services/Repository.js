@@ -5,5 +5,4 @@ const url = host + ":" + port;
 
 export default axios.create({
     baseURL: url
-    // baseURL: ``
 });

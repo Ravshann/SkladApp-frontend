@@ -6,7 +6,7 @@ div
       v-toolbar(card dark color='#FF8C00')
         v-btn(icon dark @click='clearAll' title='свернуть')
           v-icon close
-        v-toolbar-title Новый клиент
+        v-toolbar-title Редактировать
         v-spacer
         v-toolbar-items
           v-btn(dark flat @click='save_records = true') Сохранить

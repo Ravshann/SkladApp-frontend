@@ -9,14 +9,14 @@ v-app(id="inspire" white)
     width='250')
     v-list(dark v-for="(section, index) in sections" :key="index" dense)
       v-list-group( 
-        v-if="index===6"
+        v-if="index===8"
         :prepend-icon="section.icon"
         dense)
         template(v-slot:activator)
           v-list-tile
-            v-list-tile-title.prod_title {{section.title}}
+            v-list-tile-title.main_sections_font {{section.title}}
         v-list-tile(
-          v-for="(product_section, index) in product_sections" :key="index"
+          v-for="(product_section, inner_index) in product_sections" :key="inner_index"
           :to="product_section.link == '#' ? '' : product_section.link" 
           class="white--text"
           active-class="black")
@@ -24,8 +24,22 @@ v-app(id="inspire" white)
             v-icon {{product_section.icon}}
           v-list-tile-content
             v-list-tile-title {{product_section.title}}
-          //- v-list-tile-action
-          //-   v-icon arrow_forward_ios
+      v-list-group( 
+        v-else-if="index===7"
+        :prepend-icon="section.icon"
+        dense)
+        template(v-slot:activator)
+          v-list-tile
+            v-list-tile-title.main_sections_font {{section.title}}
+        v-list-tile(
+          v-for="(department_sections, inner_index) in department_sections" :key="inner_index"
+          :to="department_sections.link == '#' ? '' : department_sections.link" 
+          class="white--text"
+          active-class="black")
+          v-list-tile-action.pl-2
+            v-icon {{department_sections.icon}}
+          v-list-tile-content
+            v-list-tile-title {{department_sections.title}}      
       v-list-tile(
         v-else
         :to="section.link == '#' ? '' : section.link" 
@@ -35,9 +49,7 @@ v-app(id="inspire" white)
         v-list-tile-action
           v-icon {{section.icon}}
         v-list-tile-content
-          v-list-tile-title.prod_title {{section.title}}
-        //- v-list-tile-action
-        //-   v-icon arrow_forward_ios
+          v-list-tile-title.main_sections_font {{section.title}} 
   v-toolbar.elevation-1(color='white' dark app)
     v-toolbar-side-icon.hamburger-icon(icon @click.stop='toggleDrawer' light)
     v-spacer
@@ -118,6 +130,28 @@ export default {
           link: "/attributes"
         }
       ],
+      department_sections: [
+        {
+          title: "Отделы",
+          icon: "layers",
+          link: "/departments"
+        },
+        {
+          title: "Клиенты",
+          icon: "$vuetify.icons.clients",
+          link: "/clients"
+        },
+        {
+          title: "Поставщики",
+          icon: "local_shipping",
+          link: "/suppliers"
+        },
+        {
+          title: "Склады",
+          icon: "home",
+          link: "/storages"
+        }
+      ],
       sections: [
         {
           title: "Остаток",
@@ -144,31 +178,17 @@ export default {
           icon: "$vuetify.icons.defects",
           link: "/defected"
         },
-        {
-          title: "Клиенты",
-          icon: "$vuetify.icons.clients",
-          link: "/clients"
-        },
-        {
-          title: "Товары",
-          icon: "$vuetify.icons.goods",
-          link: "/products"
-        },
-        {
-          title: "Поставщики",
-          icon: "local_shipping",
-          link: "/suppliers"
-        },
-        {
-          title: "Склады",
-          icon: "home",
-          link: "/storages"
-        },
 
         {
           title: "Компании",
           icon: "domain",
           link: "/companies"
+        },
+
+        {
+          title: "Пользователи",
+          icon: "$vuetify.icons.manager_users_icon",
+          link: "/users"
         },
         {
           title: "Отделы",
@@ -176,9 +196,9 @@ export default {
           link: "/departments"
         },
         {
-          title: "Пользователи",
-          icon: "$vuetify.icons.manager_users_icon",
-          link: "/users"
+          title: "Товары",
+          icon: "$vuetify.icons.goods",
+          link: "/products"
         }
       ]
     };
@@ -192,8 +212,8 @@ export default {
 .inner_section_item {
   margin-left: 56px;
 }
-.prod_title {
-  font-size: 1.2em;
+.main_sections_font {
+  font-size: 1.15em;
 }
 
 .staff {

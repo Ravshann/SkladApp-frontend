@@ -13,6 +13,13 @@ import defected from "./modules/defected"
 import returned from "./modules/returned"
 import attributes from "./modules/attributes"
 import companies from "./modules/companies"
+import users from "./modules/users"
+import roles from "./modules/roles"
+import departments from "./modules/departments"
+import department_managers from "./modules/department_managers"
+import storage_managers from "./modules/storage_managers"
+
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -29,7 +36,12 @@ export default new Vuex.Store({
         defected,
         returned,
         attributes,
-        companies
+        companies,
+        users,
+        roles,
+        departments,
+        department_managers,
+        storage_managers
     },
 
 })

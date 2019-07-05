@@ -9,6 +9,13 @@ const categoriesRepository = RepositoryFactory.get("categories");
 const suppliersRepository = RepositoryFactory.get("suppliers");
 const clientsRepository = RepositoryFactory.get("clients");
 const attributesRepository = RepositoryFactory.get("attributes");
+const rolesRepository = RepositoryFactory.get("roles");
+const companiesRepository = RepositoryFactory.get("companies");
+const departmentsRepository = RepositoryFactory.get("departments");
+const departmentManagersRepository = RepositoryFactory.get(
+  "department_managers"
+);
+const storageManagersRepository = RepositoryFactory.get("storage_managers");
 import { mapMutations } from "vuex";
 export default {
   name: "loader-component",
@@ -20,14 +27,24 @@ export default {
     this.getDate();
     this.getCategories();
     this.getAttributes();
+    this.getRoles();
+    this.getCompanies();
+    this.getDepartments();
+    this.getDepartmentManagers();
+    this.getStorageManagers();
   },
   methods: {
     ...mapMutations({
       load_suppliers: "suppliers/load_suppliers",
+      load_department_managers: "department_managers/load_department_managers",
+      load_storage_managers: "storage_managers/load_storage_managers",
       load_clients: "clients/load_clients",
       load_products: "products/load_products",
       load_storages: "storages/load_storages",
       load_attributes: "attributes/load_attributes",
+      load_roles: "roles/load_roles",
+      load_departments: "departments/load_departments",
+      load_companies: "companies/load_companies",
       load_categories: "categories/load_categories",
       load_date: "date/load_date",
       load_dashed_date: "date/load_dashed_date"
@@ -35,6 +52,26 @@ export default {
     async getAttributes() {
       const { data } = await attributesRepository.get();
       this.load_attributes(data);
+    },
+    async getDepartments() {
+      const { data } = await departmentsRepository.get();
+      this.load_departments(data);
+    },
+    async getDepartmentManagers() {
+      const { data } = await departmentManagersRepository.get();
+      this.load_department_managers(data);
+    },
+    async getStorageManagers() {
+      const { data } = await storageManagersRepository.get();
+      this.load_storage_managers(data);
+    },
+    async getCompanies() {
+      const { data } = await companiesRepository.get();
+      this.load_companies(data);
+    },
+    async getRoles() {
+      const { data } = await rolesRepository.get();
+      this.load_roles(data);
     },
     async getSuppliers() {
       const { data } = await suppliersRepository.get();

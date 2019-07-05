@@ -11,6 +11,11 @@ import CategoriesRepository from "./CategoriesRepository";
 import AttributesRepository from "./AttributesRepository";
 import ProductAttributeRepository from "./ProductAttributeRepository";
 import CompaniesRepository from "./CompaniesRepository"
+import UsersRepository from "./UsersRepository"
+import RolesRepository from "./RolesRepository"
+import DepartmentsRepository from "./DepartmentsRepository"
+import DepartmentManagersRepository from "./DeparmentManagersRepository"
+import StorageManagersRepository from "./StorageManagersRepository"
 const repositories = {
     remainder: RemainderRepository,
     clients: ClientsRepository,
@@ -24,7 +29,12 @@ const repositories = {
     categories: CategoriesRepository,
     attributes: AttributesRepository,
     product_attribute: ProductAttributeRepository,
-    companies: CompaniesRepository
+    companies: CompaniesRepository,
+    users: UsersRepository,
+    roles: RolesRepository,
+    departments: DepartmentsRepository,
+    department_managers: DepartmentManagersRepository,
+    storage_managers: StorageManagersRepository
 };
 
 export default {
