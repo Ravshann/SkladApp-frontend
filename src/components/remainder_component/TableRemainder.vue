@@ -1,6 +1,6 @@
 <template lang="pug">
 v-content(v-if='!isLoading')
-  v-data-table.elevation-0.product-table(:headers='headers' :items='remainder_data' :rows-per-page-items='[25,50]' :search='search')
+  v-data-table.elevation-0.product-table(:headers='headers' :items='data_is_sorted ? remainder_data_sorted : remainder_data' :rows-per-page-items='[25,50]' :search='search')
     template(v-slot:items='props')
       td {{ props.item.productName }}
       td.text-xs-left(style='bold') {{ props.item.categoryName }}
@@ -23,11 +23,13 @@ import { mapGetters, mapMutations } from "vuex";
 export default {
   name: "table-remainder",
   props: {
-    search: ""
+    search: String()
   },
   computed: {
     ...mapGetters({
-      remainder_data: "remainders/get_remainder_data"
+      remainder_data: "remainders/get_remainder_data",
+      data_is_sorted: "remainders/get_sorted",
+      remainder_data_sorted: "remainders/get_sorted_data"
     })
   },
   created() {
@@ -42,8 +44,8 @@ export default {
           value: "productName",
           sortable: false
         },
-        { text: "Kатегория", value: "category" },
-        { text: "Общ. кол-во", value: "total" },
+        { text: "Kатегория", value: "category", sortable: false },
+        { text: "Общ. кол-во", value: "total", sortable: false },
         { text: "Склад", value: "storage_name", sortable: false },
         { text: "Количество", value: "quantity", sortable: false }
       ]

@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   v-content
-    h2.view-title Остаток по  {{getDate()}}
+    h2.view-title Остаток по  {{today}}
     v-layout(row)
       v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
       v-spacer
@@ -9,7 +9,7 @@ div
       v-spacer
       outgoing-record-form
       incoming-record-form
-      advanced-sort(:search='search')
+      advanced-sort
       excel-generator
   table-remainder(:search='search')
 </template>
@@ -20,6 +20,7 @@ import OutgoingRecordForm from "./OutgoingRecordForm";
 import IncomingRecordForm from "./IncomingRecordForm";
 import AdvancedSort from "./AdvancedSort";
 import ExcelGenerator from "./ExcelGenerator";
+import { mapGetters } from 'vuex';
 
 export default {
   name: "Remainder",
@@ -36,15 +37,11 @@ export default {
       search: ""
     };
   },
-  methods: {
-    getDate: function() {
-      var cur_date_vue = new Date();
-      var month = ("0" + (cur_date_vue.getMonth() + 1)).slice(-2);
-      var date = ("0" + cur_date_vue.getDate()).slice(-2);
-      var year = cur_date_vue.getFullYear();
-      var date_formatted_vue = year + "/" + month + "/" + date;
-      return date_formatted_vue;
-    }
+  
+  computed:{
+    ...mapGetters({
+      today: "date/get_date"
+    })
   }
 };
 </script>

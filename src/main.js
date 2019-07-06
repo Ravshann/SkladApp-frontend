@@ -23,7 +23,9 @@ Vue.use(Vuetify, {
     'defects': 'fas fa-dharmachakra',
     'clients': 'fas fa-hand-holding-usd',
     'goods': 'fab fa-intercom',
-    'manager_users_icon': 'fas fa-user-tie'
+    'manager_users_icon': 'fas fa-user-tie',
+    "excel_icon": 'fas fa-file-excel',
+    "search_icon": 'fas fa-search'
   },
   theme: {
     nav_drawer: '#293242',

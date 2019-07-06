@@ -207,7 +207,7 @@ export default {
 </script>
 <style scoped>
 .toolbar__item {
-  margin-top: 56px;
+  margin-top: 60px;
 }
 .inner_section_item {
   margin-left: 56px;

@@ -3,7 +3,7 @@ v-content
   v-data-table.elevation-0.product-table(
     v-if="!isLoading" 
     :headers='headers' 
-    :items='outgoing_records' 
+    :items='data_is_sorted ? sorted_data : outgoing_records' 
     :rows-per-page-items='[25,50]' 
     :search='search')
     template(v-slot:items='props')
@@ -25,7 +25,8 @@ import { mapGetters, mapMutations } from "vuex";
 import OutgoingRecordEditForm from "./OutgoingRecordEditForm";
 export default {
   name: "table-outgoing",
-  props: { search: "" },
+  props: { 
+    search: String() },
   components: { OutgoingRecordEditForm },
   created() {
     if (this.outgoing_records.length === 0) {
@@ -34,7 +35,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      outgoing_records: "outgoing/get_outgoing_data"
+      outgoing_records: "outgoing/get_outgoing_data",
+      data_is_sorted: "outgoing/get_sorted_flag",
+      sorted_data: "outgoing/get_sorted_data"
     })
   },
   data() {
@@ -49,7 +52,7 @@ export default {
           sortable: false
         },
         { text: "Количество", value: "quantity", sortable: false },
-        { text: "Регион", value: "client_region", sortable: false },
+        { text: "Регион(клиент)", value: "client_region", sortable: false },
         { text: "Кому", value: "client_name", sortable: false },
         { text: "Склад", value: "storage_name", sortable: false },
         { text: "Дата", value: "record_datetime", sortable: false },

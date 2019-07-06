@@ -1,8 +1,27 @@
 <template lang="pug">
-v-menu(ref='menu' v-model='menu' :close-on-content-click='false' :nudge-right='40' lazy transition='scale-transition' offset-y full-width min-width='290px')
+v-menu(
+  ref='menu' 
+  v-model='menu' 
+  :close-on-content-click='false' 
+  :nudge-right='40' 
+  lazy 
+  transition='scale-transition' 
+  offset-y 
+  full-width 
+  min-width='290px')
   template(v-slot:activator='{ on }')
-    v-text-field(v-model='date' label='Дата' prepend-icon='event' readonly v-on='on')
-  v-date-picker(v-model='date' no-title scrollable)
+    v-text-field(
+      v-model='date' 
+      label='Дата' 
+      prepend-icon='event' 
+      readonly 
+      v-on='on')
+  v-date-picker(
+    v-model='date' 
+    no-title 
+    scrollable
+    :min='minimum_date!==undefined ? maximum_date : ""'
+    :max='maximum_date!==undefined ? maximum_date: ""')
     v-spacer
     v-btn(flat color='primary' @click='okButtonClicked') OK
 </template>
@@ -15,11 +34,17 @@ export default {
     this.$emit("date-selected-event", this.date);
   },
   props: {
-    custom_date: String
+    custom_date: String,
+    minimum_date: String,
+    maximum_date: String
   },
   watch: {
     custom_date: function() {
       this.date = this.custom_date;
+    },
+    date() {
+      this.menu = false;
+      this.$emit("date-selected-event", this.date);
     }
   },
   data() {
@@ -37,7 +62,7 @@ export default {
       var date_formatted_vue = year + "-" + month + "-" + date;
       return date_formatted_vue;
     },
-    okButtonClicked(event) {
+    okButtonClicked() {
       this.menu = false;
       this.$emit("date-selected-event", this.date);
     }
