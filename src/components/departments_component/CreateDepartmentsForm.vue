@@ -29,15 +29,14 @@ div
         v-autocomplete(
           v-model='department_manager' 
           :items="department_manager_list" 
-          label='Зав-Склад' 
+          label='Управляющий' 
           prepend-icon='streetview'  
           persistent-hint 
           item-text='first_name'
           return-object)
 </template>
 <script>
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("departments");
 
@@ -46,10 +45,7 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-departments-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+  
   computed: {
     ...mapGetters({
       company_list: "companies/get_companies",

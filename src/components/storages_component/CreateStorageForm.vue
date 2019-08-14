@@ -35,8 +35,7 @@ div
           return-object)
 </template>
 <script>
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("storages");
 
@@ -45,10 +44,7 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-storage-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+  
   computed: {
     ...mapGetters({
       department_list: "departments/get_departments",

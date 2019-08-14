@@ -15,14 +15,10 @@ div
         v-text-field(v-model='attribute_value' type='number' label='Значение' prepend-icon='straighten' placeholder='Значение')       
 </template>
 <script>
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 export default {
   name: "edit-attribute-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+  
   props: {
     appear: Boolean,
     edit_object: Object

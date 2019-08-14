@@ -20,7 +20,7 @@ import EditStorageForm from "./EditStorageForm";
 export default {
   name: "table-storages",
   props: {
-    search: ""
+    search: String()
   },
   components: {
     EditStorageForm

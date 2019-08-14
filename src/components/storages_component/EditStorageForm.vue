@@ -39,20 +39,16 @@ const repository = RepositoryFactory.get("storages");
 
 import { mapMutations, mapGetters } from "vuex";
 import { setTimeout } from "timers";
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 export default {
   name: "edit-storage-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+ 
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
-    console.log(this.edit_object);
+    
     if (this.edit_object !== undefined) {
       this.storage_ID = this.edit_object.storage_ID;
       this.storage_name = this.edit_object.storage_name;

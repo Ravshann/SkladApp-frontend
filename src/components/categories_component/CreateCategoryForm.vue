@@ -27,8 +27,6 @@ div
           return-object)
 </template>
 <script>
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("categories");
 
@@ -37,10 +35,6 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-category-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
   computed: {
     ...mapGetters({
       category_list: "categories/get_categories"

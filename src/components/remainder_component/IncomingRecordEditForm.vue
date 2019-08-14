@@ -3,13 +3,14 @@ div
   v-dialog(v-model='appear' max-width='800px' persistent  transition='dialog-bottom-transition' scrollable)
     v-card(title)
       v-toolbar(card dark color='primary')
-        v-btn(icon dark @click='close' title='отменить')
+        v-btn(icon dark @click='close(false)' title='отменить')
           v-icon close
         v-toolbar-title Изменить данные
         v-spacer
         v-toolbar-items
-          v-btn(dark flat @click='save_dialog = true') Сохранить
-        save-changes-dialog(:save_records="save_dialog" @save-changes-dialog-event="saveChanges")
+          v-btn(dark flat @click='save_records = true') Сохранить
+        // dialog for confirmation
+        save-changes-dialog(:save_records="save_records" @save-changes-dialog-event="saveChanges")
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
         // data pick menu
@@ -47,28 +48,28 @@ div
           placeholder='0')
 </template>
 <script>
-import { mapGetters, mapMutations } from "vuex";
-import RepositoryFactory from "../../services/RepositoryFactory";
-const incomingRepository = RepositoryFactory.get("incoming");
+import { mapGetters } from "vuex";
+
 export default {
   name: "incoming-record-edit-form",
+
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
-    this.supplier = {
-      supplier_name: this.edit_object.supplier_name,
-      supplier_ID: this.edit_object.supplier_ID
-    };
-    this.product = {
-      product_name: this.edit_object.product_name,
-      product_ID: this.edit_object.product_ID
-    };
-    this.storage = {
-      storage_name: this.edit_object.storage_name,
-      storage_ID: this.edit_object.storage_ID
-    };
+    let supplier = this.supplier_list.filter(obj => {
+      return obj.supplier_ID === this.edit_object.supplier_ID;
+    });
+    let product = this.product_list.filter(obj => {
+      return obj.product_ID === this.edit_object.product_ID;
+    });
+    let storage = this.storage_list.filter(obj => {
+      return obj.storage_ID === this.edit_object.storage_ID;
+    });
+    this.supplier = supplier[0];
+    this.product = product[0];
+    this.storage = storage[0];
     this.quantity = this.edit_object.quantity;
     this.record_datetime = this.edit_object.record_datetime;
   },
@@ -77,13 +78,12 @@ export default {
       supplier_list: "suppliers/get_suppliers",
       product_list: "products/get_products",
       storage_list: "storages/get_storages",
-      today: "date/get_dashed_date",
-      user_role: "logged_user/get_user_role"
+      today: "date/get_dashed_date"
     })
   },
   data() {
     return {
-      save_dialog: false,
+      save_records: false,
       inform_dialog_done: false,
       date: "",
       record_datetime: "",
@@ -97,47 +97,30 @@ export default {
     dateSelected(date) {
       this.date = date;
     },
-    ...mapMutations({
-      load_incoming_data: "incoming/load_incoming_data"
-    }),
-    close() {
-      this.$emit("edit-form-closed", false);
+    close(data) {
+      this.$emit("edit-form-closed", data);
     },
-    async getIncomingDataByStorage(storage_id) {
-      const { data } = await incomingRepository.get_by_storage(storage_id);
-      this.load_incoming_data(data);
-    },
-    async refresh() {
-      if (this.user_role === "Завсклад")
-        this.getIncomingDataByStorage(this.storage_list[0].storage_ID);
-      else {
-        const { data } = await incomingRepository.get();
-        this.load_incoming_data(data);
-      }
-    },
-    saveChanges: function(choice) {
+
+    saveChanges(choice) {
       if (choice) {
         this.inform_dialog_done = true;
-        this.save_dialog = false;
+        this.save_records = false;
         let formatted = {
           supplier_ID: this.supplier.supplier_ID,
+          supplier_name: this.supplier.supplier_name,
           storage_ID: this.storage.storage_ID,
+          product_name: this.product.product_name,
           product_ID: this.product.product_ID,
-          updated_datetime: this.today,
+          storage_name: this.storage.storage_name,
           record_datetime: this.date,
           quantity: this.quantity,
-          inout_type_ID: 2,
-          record_ID: this.edit_object.record_ID
+          inout_type_ID: 2
         };
-        incomingRepository.update(formatted);
-        this.close();
+
+        this.close(formatted);
       } else {
-        this.save_dialog = false;
+        this.save_records = false;
       }
-      let self = this;
-      setTimeout(function() {
-        self.refresh();
-      }, 1000);
     }
   }
 };

@@ -7,8 +7,8 @@ div
       v-spacer
       v-spacer
       v-spacer
-      //- advanced-sort(:incoming_records='incoming_records_computed' :search='search')
-      //- excel-generator(:json_data='incoming_records_computed')
+      advanced-sort
+      excel-generator
   table-incoming(:search='search')
 </template>
 <script>
@@ -26,7 +26,7 @@ export default {
   },
   data() {
     return {
-      search: ""
+      search: String()
     };
   },
   computed: {

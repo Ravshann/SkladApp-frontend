@@ -8,8 +8,6 @@ div
       v-spacer
       v-spacer
       clients-create-form
-      advanced-sort(:search='search')
-      excel-generator
   table-clients(:search='search')
   
 </template>
@@ -17,16 +15,12 @@ div
 <script>
 import TableClients from "./TableClients";
 import ClientsCreateForm from "./ClientsCreateForm";
-import AdvancedSort from "./AdvancedSort";
-import ExcelGenerator from "./ExcelGenerator";
 import { mapGetters } from "vuex";
 export default {
   name: "Clients",
   components: {
     TableClients,
-    ClientsCreateForm,
-    AdvancedSort,
-    ExcelGenerator
+    ClientsCreateForm
   },
 
   data() {

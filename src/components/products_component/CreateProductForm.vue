@@ -26,8 +26,7 @@ div
           
 </template>
 <script>
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("products");
 
@@ -36,10 +35,7 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-product-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+  
   computed: {
     ...mapGetters({
       category_list: "categories/get_categories",
@@ -82,7 +78,7 @@ export default {
           product_name: this.product_name,
           category_ID: this.category.category_ID
         };
-        console.log(object);
+        // console.log(object);
         repository.save(object);
         //clear data
         this.clearAll();

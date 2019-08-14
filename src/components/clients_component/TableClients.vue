@@ -24,7 +24,7 @@ export default {
     ClientsCreateForm
   },
   props: {
-    search: ""
+    search: String()
   },
   created() {
     if (this.clients.length === 0) {

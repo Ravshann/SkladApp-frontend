@@ -14,7 +14,7 @@ v-menu(
       v-model='date' 
       label='Дата' 
       prepend-icon='event' 
-      readonly 
+      readonly
       v-on='on')
   v-date-picker(
     v-model='date' 
@@ -30,13 +30,14 @@ v-menu(
 export default {
   name: "data-pick-menu",
   created() {
-    this.date = this.getDate();
+    if (this.custom_date === undefined) this.date = this.getDate();
+    else this.date = this.custom_date;
     this.$emit("date-selected-event", this.date);
   },
   props: {
-    custom_date: String,
-    minimum_date: String,
-    maximum_date: String
+    custom_date: String(),
+    minimum_date: String(),
+    maximum_date: String()
   },
   watch: {
     custom_date: function() {
@@ -50,7 +51,7 @@ export default {
   data() {
     return {
       menu: false,
-      date: Date
+      date: Date()
     };
   },
   methods: {

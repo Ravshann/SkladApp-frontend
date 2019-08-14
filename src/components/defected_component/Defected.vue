@@ -28,15 +28,13 @@ export default {
   },
   data() {
     return {
-      search: ""
+      search: String()
     };
   },
- computed: {
+  computed: {
     ...mapGetters({
       today: "date/get_date"
     })
-  },
-  methods: {
   }
 };
 </script>

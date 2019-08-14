@@ -3,29 +3,14 @@ div
   v-dialog(v-model='appear' max-width='800px' persistent  transition='dialog-bottom-transition' scrollable)
     v-card(title)
       v-toolbar(card dark color='primary')
-        v-btn(icon dark @click='close' title='отменить')
+        v-btn(icon dark @click='closeNotSaving' title='отменить')
           v-icon close
         v-toolbar-title Изменить данные
         v-spacer
         v-toolbar-items
           v-btn(dark flat @click='save_dialog = true') Сохранить
-        // dialog for confirmation
-        v-dialog(v-model='save_dialog' max-width='290')
-          v-card
-            v-card-title.headline save changes?
-            v-card-text all changes will be saved.
-            v-card-actions
-              v-spacer
-              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
-              v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') cancel
-        // dialog for notifiying
-        v-dialog(v-model='inform_dialog_done' max-width='290')
-          v-card
-            v-card-title.headline changes saved
-            v-card-text all changes are saved.
-            v-card-actions
-              v-spacer
-              v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
+        save-changes-dialog(:save_records="save_dialog" @save-changes-dialog-event="saveChanges")
+        inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
         // data pick menu
         data-pick-menu(@date-selected-event='dateSelected' :custom_date='record_datetime')
@@ -62,30 +47,44 @@ div
           placeholder='0')
 </template>
 <script>
-import DataPickMenu from "../DataPickMenu";
 import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
 const defectedRepository = RepositoryFactory.get("defected");
 export default {
   name: "defected-record-edit-form",
-  components: { DataPickMenu },
+
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
-    this.supplier = {
-      supplier_name: this.edit_object.supplier_name,
-      supplier_ID: this.edit_object.supplier_ID
-    };
-    this.product = {
-      product_name: this.edit_object.product_name,
-      product_ID: this.edit_object.product_ID
-    };
-    this.storage = {
-      storage_name: this.edit_object.storage_name,
-      storage_ID: this.edit_object.storage_ID
-    };
+    if (this.edit_object.supplier_name !== undefined) {
+      this.supplier = {
+        supplier_name: this.edit_object.supplier_name,
+        supplier_ID: this.edit_object.supplier_ID
+      };
+      this.product = {
+        product_name: this.edit_object.product_name,
+        product_ID: this.edit_object.product_ID
+      };
+      this.storage = {
+        storage_name: this.edit_object.storage_name,
+        storage_ID: this.edit_object.storage_ID
+      };
+    } else {
+      let supplier = this.supplier_list.filter(obj => {
+        return obj.supplier_ID === this.edit_object.supplier_ID;
+      });
+      let product = this.product_list.filter(obj => {
+        return obj.product_ID === this.edit_object.product_ID;
+      });
+      let storage = this.storage_list.filter(obj => {
+        return obj.storage_ID === this.edit_object.storage_ID;
+      });
+      this.supplier = supplier[0];
+      this.product = product[0];
+      this.storage = storage[0];
+    }
     this.quantity = this.edit_object.quantity;
     this.record_datetime = this.edit_object.record_datetime;
   },
@@ -94,7 +93,8 @@ export default {
       supplier_list: "suppliers/get_suppliers",
       product_list: "products/get_products",
       storage_list: "storages/get_storages",
-      today: "date/get_dashed_date"
+      today: "date/get_dashed_date",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
@@ -116,12 +116,29 @@ export default {
     ...mapMutations({
       load_defected_data: "defected/load_data"
     }),
-    close() {
+    closeNotSaving() {
       this.$emit("edit-form-closed", false);
     },
-    async refresh() {
-      const { data } = await defectedRepository.get();
+    close(data) {
+      this.$emit("edit-form-closed", data);
+      if (this.edit_object.supplier_name !== undefined) {
+        defectedRepository.update(data);
+        setTimeout(() => {
+          this.refresh();
+        }, 2000);
+      }
+    },
+    async getDefectedDataByStorage(storage_id) {
+      const { data } = await defectedRepository.get_by_storage(storage_id);
       this.load_defected_data(data);
+    },
+    async refresh() {
+      if (this.user_role === "Завсклад")
+        this.getDefectedDataByStorage(this.storage_list[0].storage_ID);
+      else {
+        const { data } = await defectedRepository.get();
+        this.load_defected_data(data);
+      }
     },
     saveChanges: function(choice) {
       if (choice) {
@@ -129,22 +146,23 @@ export default {
         this.save_dialog = false;
         let formatted = {
           supplier_ID: this.supplier.supplier_ID,
+          supplier_name: this.supplier.supplier_name,
           storage_ID: this.storage.storage_ID,
+          storage_name: this.storage.storage_name,
+          product_name: this.product.product_name,
           product_ID: this.product.product_ID,
-          updated_datetime: this.today,
           record_datetime: this.date,
           quantity: this.quantity,
-          inout_type_ID: 4,
-          record_ID: this.edit_object.record_ID
+          inout_type_ID: 4
         };
-        defectedRepository.update(formatted);
-        this.close();
+        if (this.edit_object.record_ID !== undefined) {
+          formatted.updated_datetime = this.today;
+          formatted.record_ID = this.edit_object.record_ID;
+        }
+        this.close(formatted);
       } else {
         this.save_dialog = false;
       }
-      setTimeout(() => {
-        this.refresh();
-      }, 1000);
     }
   }
 };

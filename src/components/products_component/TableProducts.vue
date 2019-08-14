@@ -26,7 +26,7 @@ import ProductEditForm from "./ProductEditForm";
 export default {
   name: "table-products",
   props: {
-    search: ""
+    search: String()
   },
   components: {
     ProductEditForm,
@@ -69,6 +69,9 @@ export default {
       this.isLoading = true;
       const { data } = await repository.get();
       this.isLoading = false;
+      data.sort(function(a, b) {
+        return a.product_name.toLowerCase().localeCompare(b.product_name);
+      });
       this.load_data(data);
     },
     show(object) {

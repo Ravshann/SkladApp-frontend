@@ -26,14 +26,9 @@ const repository = RepositoryFactory.get("clients");
 
 import { mapMutations } from "vuex";
 import { setTimeout } from "timers";
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
 export default {
   name: "clients-create-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+
   props: {
     appear: Boolean,
     edit_object: Object

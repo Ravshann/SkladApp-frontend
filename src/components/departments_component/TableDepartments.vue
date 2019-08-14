@@ -51,7 +51,7 @@ export default {
           value: "company_name"
         },
         {
-          text: "Зав-Склад",
+          text: "Управляющий",
           sortable: false,
           value: "department_manager_name"
         },

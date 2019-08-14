@@ -37,8 +37,7 @@ div
           return-object)
 </template>
 <script>
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("users");
 
@@ -47,10 +46,7 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-user-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+  
   computed: {
     ...mapGetters({
       company_list: "companies/get_companies",

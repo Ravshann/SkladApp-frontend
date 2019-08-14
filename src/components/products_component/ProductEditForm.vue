@@ -83,15 +83,10 @@ import { mapGetters, mapMutations } from "vuex";
 import RepositoryFactory from "../../services/RepositoryFactory";
 const productsRepository = RepositoryFactory.get("products");
 const productAttributeRepository = RepositoryFactory.get("product_attribute");
-
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
 import EditAttributeForm from "./EditAttributeForm";
 export default {
   name: "product-edit-form",
   components: {
-    SaveChangesDialog,
-    InformDialogDone,
     EditAttributeForm
   },
   props: {

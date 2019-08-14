@@ -9,34 +9,34 @@ v-app(id="inspire" white)
     width='250')
     v-list(dark v-for="(section, index) in sections" :key="index" dense)
       v-list-group( 
-        v-if="index===8"
+        v-if="index===5 && user_access_level!==0"
         :prepend-icon="section.icon"
         dense)
         template(v-slot:activator)
           v-list-tile
-            v-list-tile-title.main_sections_font {{section.title}}
+            v-list-tile-title.main_sections_font_size {{section.title}}
         v-list-tile(
           v-for="(product_section, inner_index) in product_sections" :key="inner_index"
           :to="product_section.link == '#' ? '' : product_section.link" 
           class="white--text"
           active-class="black")
-          v-list-tile-action.pl-2
+          v-list-tile-action(:class='{"pl-2": !mini}')
             v-icon {{product_section.icon}}
           v-list-tile-content
             v-list-tile-title {{product_section.title}}
       v-list-group( 
-        v-else-if="index===7"
+        v-else-if="index===6 && user_access_level!==0"
         :prepend-icon="section.icon"
         dense)
         template(v-slot:activator)
           v-list-tile
-            v-list-tile-title.main_sections_font {{section.title}}
+            v-list-tile-title.main_sections_font_size {{section.title}}
         v-list-tile(
           v-for="(department_sections, inner_index) in department_sections" :key="inner_index"
           :to="department_sections.link == '#' ? '' : department_sections.link" 
           class="white--text"
           active-class="black")
-          v-list-tile-action.pl-2
+          v-list-tile-action(:class='{"pl-2": !mini}')
             v-icon {{department_sections.icon}}
           v-list-tile-content
             v-list-tile-title {{department_sections.title}}      
@@ -46,23 +46,23 @@ v-app(id="inspire" white)
         :class="[index===0 ? 'toolbar__item': '']"
         class="white--text"
         active-class="black")
-        v-list-tile-action
+        v-list-tile-action.left_pad
           v-icon {{section.icon}}
         v-list-tile-content
-          v-list-tile-title.main_sections_font {{section.title}} 
+          v-list-tile-title.main_sections_font_size {{section.title}} 
   v-toolbar.elevation-1(color='white' dark app)
     v-toolbar-side-icon.hamburger-icon(icon @click.stop='toggleDrawer' light)
     v-spacer
-    a.staff(href='#') Зав-Склад
-    a.staff(href='#') Нодир
+    v-btn(outline round  color="green") {{user_role}}
+    v-btn(outline round  color="primary") {{username}}
     router-link.log-out(tag='a' :to="{ name: 'login'}" replace)
-      i.fas.fa-sign-out-alt
-  loader
+      i.fas.fa-sign-out-alt(@click="log_out")
   router-view
-  
+  loader
 </template>
 <script>
 import loader from "./Loader";
+import { mapMutations, mapGetters } from "vuex";
 function isMobile() {
   return window.innerWidth < 1025;
 }
@@ -71,13 +71,41 @@ export default {
   components: {
     loader
   },
+  computed: {
+    ...mapGetters({
+      username: "logged_user/get_username",
+      user_role: "logged_user/get_user_role"
+    })
+  },
   mounted() {
     window.addEventListener("resize", this.onResize);
+    this.set_access_level();
+    this.set_sections();
   },
   destroyed() {
     window.removeEventListener("resize", this.onResize);
   },
+
   methods: {
+    ...mapMutations({
+      load_user_logging_status: "logged_user/load_user_status",
+      load_user_token: "logged_user/load_user_token",
+      load_user_role: "logged_user/load_user_role",
+      load_username: "logged_user/load_username",
+      load_user_ID: "logged_user/load_user_ID"
+    }),
+
+    log_out() {
+      localStorage.removeItem("sklad-user-token");
+      this.load_user_logging_status(false);
+      this.load_user_token("");
+      this.load_user_role("");
+      this.load_username("");
+      this.load_user_ID(0);
+      setTimeout(() => {
+        this.$router.go("/login");
+      }, 500);
+    },
     toggleDrawer() {
       let mobile = isMobile();
       if (mobile) {
@@ -103,16 +131,51 @@ export default {
         this.drawer = true;
       }
       this.temporary = mobile;
+    },
+    set_access_level() {
+      if (this.user_role === "admin") {
+        this.user_access_level = 2;
+      } else if (this.user_role === "Оффис") {
+        this.user_access_level = 1;
+      } else if (
+        this.user_role === "Управляющий" ||
+        this.user_role === "Завсклад"
+      ) {
+        this.user_access_level = 0;
+      }
+    },
+    set_sections() {
+      if (this.user_access_level === 0)
+        this.sections = [...this.basic_sections, this.clients_section];
+      else if (this.user_access_level === 1)
+        this.sections = [
+          ...this.basic_sections,
+          this.product_sections[0],
+          this.department_sections[0],
+          this.admin_sections[0]
+        ];
+      else if (this.user_access_level === 2 || this.user_access_level === 1)
+        this.sections = [
+          ...this.basic_sections,
+          this.product_sections[0],
+          this.department_sections[0],
+          ...this.admin_sections
+        ];
     }
   },
+
   data() {
     const mobile = isMobile();
     return {
       temporary: mobile,
       drawer: true,
       mini: false,
-      first: true,
-      selected_view: "Остаток",
+      user_access_level: 0,
+      clients_section: {
+        title: "Клиенты",
+        icon: "$vuetify.icons.clients",
+        link: "/clients"
+      },
       product_sections: [
         {
           title: "Товары",
@@ -152,7 +215,19 @@ export default {
           link: "/storages"
         }
       ],
-      sections: [
+      admin_sections: [
+        {
+          title: "Пользователи",
+          icon: "$vuetify.icons.manager_users_icon",
+          link: "/users"
+        },
+        {
+          title: "Компании",
+          icon: "domain",
+          link: "/companies"
+        }
+      ],
+      basic_sections: [
         {
           title: "Остаток",
           icon: "view_list",
@@ -177,30 +252,9 @@ export default {
           title: "Дефектные",
           icon: "$vuetify.icons.defects",
           link: "/defected"
-        },
-
-        {
-          title: "Компании",
-          icon: "domain",
-          link: "/companies"
-        },
-
-        {
-          title: "Пользователи",
-          icon: "$vuetify.icons.manager_users_icon",
-          link: "/users"
-        },
-        {
-          title: "Отделы",
-          icon: "layers",
-          link: "/departments"
-        },
-        {
-          title: "Товары",
-          icon: "$vuetify.icons.goods",
-          link: "/products"
         }
-      ]
+      ],
+      sections: []
     };
   }
 };
@@ -212,10 +266,13 @@ export default {
 .inner_section_item {
   margin-left: 56px;
 }
-.main_sections_font {
+.main_sections_font_size {
   font-size: 1.15em;
 }
 
+.left_pad {
+  padding-left: 2px;
+}
 .staff {
   color: #000000;
   font-size: 15px;

@@ -18,8 +18,6 @@ div
 
 <script>
 import { mapMutations } from "vuex";
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
 import TableAttributes from "./TableAttributes";
 
 import RepositoryFactory from "../../services/RepositoryFactory";
@@ -27,9 +25,7 @@ const repository = RepositoryFactory.get("attributes");
 export default {
   name: "Attributes",
   components: {
-    TableAttributes,
-    SaveChangesDialog,
-    InformDialogDone
+    TableAttributes
   },
 
   data() {

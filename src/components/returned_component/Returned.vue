@@ -2,8 +2,8 @@
 div
   v-content
     h2.view-title Возвраты по  {{current_date}}
-    v-layout(row='')
-      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line='' hide-details='')
+    v-layout(row)
+      v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
       v-spacer
       v-spacer
       v-spacer
@@ -28,7 +28,7 @@ export default {
   },
   data() {
     return {
-      search: ""
+      search: String()
     };
   },
   computed: {

@@ -34,7 +34,7 @@ export default {
   data() {
     return {
       isLoading: false,
-      search: ""
+      search: String()
     };
   },
   

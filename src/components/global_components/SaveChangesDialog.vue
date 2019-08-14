@@ -1,12 +1,12 @@
 <template lang="pug">
 v-dialog(v-model='save_records' max-width='290')
   v-card
-    v-card-title.headline save changes?
-    v-card-text all changes will be saved.
+    v-card-title.headline Сохранить изменения?
+    v-card-text Все изменения будут сохранены
     v-card-actions
       v-spacer
-      v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
-      v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') cancel
+      v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') продолжить
+      v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') отменa
 </template>
 <script>
 export default {

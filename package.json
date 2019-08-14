@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "axios": "^0.18.1",
     "es6-promise": "^4.2.8",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "vue": "^2.6.6",
     "vue-json-excel": "^0.2.98",

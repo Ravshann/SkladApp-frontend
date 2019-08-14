@@ -11,22 +11,8 @@ div
       //- advanced-sort(:search='search')
       //- excel-generator
 
-      v-dialog(v-model='save_dialog' max-width='290')
-        v-card
-          v-card-title.headline save changes?
-          v-card-text all changes will be saved.
-          v-card-actions
-            v-spacer
-            v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(true)') continue
-            v-btn(color='green darken-1' flat='flat' @click.prevent='saveChanges(false)') cancel
-        // dialog for notifiying
-      v-dialog(v-model='inform_dialog_done' max-width='290')
-        v-card
-          v-card-title.headline changes saved
-          v-card-text all changes are saved.
-          v-card-actions
-            v-spacer
-            v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok
+      save-changes-dialog(:save_records="save_outgoing_records" @save-changes-dialog-event="saveChanges")
+      inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
   table-suppliers(:search='search')
   
 </template>

@@ -16,16 +16,23 @@ const departmentManagersRepository = RepositoryFactory.get(
   "department_managers"
 );
 const storageManagersRepository = RepositoryFactory.get("storage_managers");
-import { mapMutations } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 export default {
   name: "loader-component",
+  computed: {
+    ...mapGetters({
+      user_role: "logged_user/get_user_role",
+      user_ID: "logged_user/get_user_ID"
+    })
+  },
   created() {
+    this.getDate();
+    this.getProducts();
+
+    if (this.user_role !== "Завсклад") this.getStorages();
+    this.getCategories();
     this.getSuppliers();
     this.getClients();
-    this.getProducts();
-    this.getStorages();
-    this.getDate();
-    this.getCategories();
     this.getAttributes();
     this.getRoles();
     this.getCompanies();
@@ -35,17 +42,17 @@ export default {
   },
   methods: {
     ...mapMutations({
-      load_suppliers: "suppliers/load_suppliers",
-      load_department_managers: "department_managers/load_department_managers",
-      load_storage_managers: "storage_managers/load_storage_managers",
-      load_clients: "clients/load_clients",
       load_products: "products/load_products",
       load_storages: "storages/load_storages",
+      load_categories: "categories/load_categories",
+      load_suppliers: "suppliers/load_suppliers",
+      load_clients: "clients/load_clients",
       load_attributes: "attributes/load_attributes",
       load_roles: "roles/load_roles",
-      load_departments: "departments/load_departments",
       load_companies: "companies/load_companies",
-      load_categories: "categories/load_categories",
+      load_departments: "departments/load_departments",
+      load_department_managers: "department_managers/load_department_managers",
+      load_storage_managers: "storage_managers/load_storage_managers",
       load_date: "date/load_date",
       load_dashed_date: "date/load_dashed_date"
     }),
@@ -92,6 +99,11 @@ export default {
     async getStorages() {
       const { data } = await storagesRepository.get();
       this.load_storages(data);
+    },
+    async getStorage(user_ID) {
+      const { data } = await storagesRepository.get_single(user_ID);
+      var array = [data];
+      this.load_storages(array);
     },
     getDate: function() {
       var cur_date_vue = new Date();

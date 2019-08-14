@@ -20,14 +20,10 @@ const repository = RepositoryFactory.get("attributes");
 
 import { mapMutations } from "vuex";
 import { setTimeout } from "timers";
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 export default {
   name: "edit-attribute-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+
   props: {
     appear: Boolean,
     edit_object: Object

@@ -1,6 +1,10 @@
 <template lang="pug">
 v-content
-  v-data-table.elevation-0.product-table(:headers='headers' :items='returned_records' :rows-per-page-items='[25,50]' :search='search')
+  v-data-table.elevation-0.product-table(
+    :headers='headers' 
+    :items='data_is_sorted ? sorted_data : returned_records' 
+    :rows-per-page-items='[25,50]' 
+    :search='search')
     template(v-slot:items='props')
       td {{ props.item.product_name }}
       td.text-xs-left(style='bold') {{ props.item.quantity }}
@@ -27,16 +31,32 @@ export default {
     ReturnedRecordEditForm
   },
   props: {
-    search: ""
+    search: String()
   },
   created() {
-    if (this.returned_records.length === 0) {
-      this.getReturnedData();
-    }
+    var storage = 0;
+    if (this.storage_list !== undefined) storage = this.storage_list;
+    if (this.user_role === "Завсклад" && this.returned_records.length === 0) {
+      if (storage.length !== 0)
+        this.getReturnedDataByStorage(storage[0].storage_ID);
+      else
+        this.$store.subscribe(mutation => {
+          switch (mutation.type) {
+            case "storages/load_storages":
+              storage = mutation.payload;
+              this.getReturnedDataByStorage(storage[0].storage_ID);
+              break;
+          }
+        });
+    } else if (this.returned_records.length === 0) this.getReturnedData();
   },
   computed: {
     ...mapGetters({
-      returned_records: "returned/get_returned_data"
+      returned_records: "returned/get_returned_data",
+      data_is_sorted: "returned/get_sorted_flag",
+      sorted_data: "returned/get_sorted_data",
+      user_role: "logged_user/get_user_role",
+      storage_list: "storages/get_storages"
     })
   },
   methods: {
@@ -46,6 +66,12 @@ export default {
     async getReturnedData() {
       this.isLoading = true;
       const { data } = await repository.get();
+      this.isLoading = false;
+      this.load_data(data);
+    },
+    async getReturnedDataByStorage(storage_id) {
+      this.isLoading = true;
+      const { data } = await repository.get_by_storage(storage_id);
       this.isLoading = false;
       this.load_data(data);
     },

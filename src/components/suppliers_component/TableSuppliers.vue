@@ -21,7 +21,7 @@ import EditSupplierForm from "./EditSupplierForm";
 export default {
   name: "table-suppliers",
   props: {
-    search: ""
+    search: String()
   },
   components: {
     EditSupplierForm

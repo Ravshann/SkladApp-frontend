@@ -3,13 +3,14 @@ div
   v-dialog(v-model='appear' max-width='800px' persistent  transition='dialog-bottom-transition' scrollable)
     v-card(title)
       v-toolbar(card dark color='primary')
-        v-btn(icon dark @click='close' title='отменить')
+        v-btn(icon dark @click='close(false)' title='отменить')
           v-icon close
         v-toolbar-title Изменить данные
         v-spacer
         v-toolbar-items
-          v-btn(dark flat @click='save_dialog = true') Сохранить
-        save-changes-dialog(:save_records="save_dialog" @save-changes-dialog-event="saveChanges")
+          v-btn(dark flat @click='save_records = true') Сохранить
+        // dialog for confirmation
+        save-changes-dialog(:save_records="save_records" @save-changes-dialog-event="saveChanges")
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
         // data pick menu
@@ -25,11 +26,11 @@ div
           return-object)
         v-autocomplete(
           v-model='product' 
-          :items="product_list" 
+          :items="remainder_data" 
           label='Наименование товара' 
           prepend-icon='sort' 
           persistent-hint 
-          item-text='product_name' 
+          item-text='productName' 
           return-object)
         v-autocomplete(
           v-model='storage' 
@@ -47,45 +48,46 @@ div
           placeholder='0')
 </template>
 <script>
-import { mapGetters, mapMutations } from "vuex";
-import RepositoryFactory from "../../services/RepositoryFactory";
-const outgoingRepository = RepositoryFactory.get("outgoing");
+import { mapGetters } from "vuex";
+
 export default {
   name: "outgoing-record-edit-form",
+
   props: {
     appear: Boolean,
     edit_object: Object
   },
   mounted() {
-    this.client = {
-      client_name: this.edit_object.client_name,
-      client_ID: this.edit_object.client_ID
-    };
-    this.product = {
-      product_name: this.edit_object.product_name,
-      product_ID: this.edit_object.product_ID
-    };
-    this.storage = {
-      storage_name: this.edit_object.storage_name,
-      storage_ID: this.edit_object.storage_ID
-    };
+    let client = this.client_list.filter(obj => {
+      return obj.client_ID === this.edit_object.client_ID;
+    });
+    let product = this.remainder_data.filter(obj => {
+      return obj.productID === this.edit_object.product_ID;
+    });
+    let storage = this.storage_list.filter(obj => {
+      return obj.storage_ID === this.edit_object.storage_ID;
+    });
+    this.client = client[0];
+    this.product = product[0];
+    this.storage = storage[0];
     this.quantity = this.edit_object.quantity;
     this.record_datetime = this.edit_object.record_datetime;
   },
   computed: {
     ...mapGetters({
+      remainder_data: "remainders/get_remainder_data",
       client_list: "clients/get_clients",
       product_list: "products/get_products",
       storage_list: "storages/get_storages",
-      today_dashed: "date/get_dashed_date",
+      today: "date/get_dashed_date",
       user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
-      save_dialog: false,
+      save_records: false,
       inform_dialog_done: false,
-      selectedDate: "",
+      date: "",
       record_datetime: "",
       quantity: 0,
       client: Object,
@@ -95,48 +97,32 @@ export default {
   },
   methods: {
     dateSelected(date) {
-      this.selectedDate = date;
+      this.date = date;
     },
-    ...mapMutations({
-      load_outgoing_data: "outgoing/load_outgoing_data"
-    }),
-    close() {
-      this.$emit("edit-form-closed", false);
+    close(data) {
+      this.$emit("edit-form-closed", data);
     },
-    async getOutgoingDataByStorage(storage_id) {
-      const { data } = await outgoingRepository.get_by_storage(storage_id);
-      this.load_outgoing_data(data);
-    },
-    async refresh() {
-      if (this.user_role === "Завсклад")
-        this.getOutgoingDataByStorage(this.storage_list[0].storage_ID);
-      else {
-        const { data } = await outgoingRepository.get();
-        this.load_outgoing_data(data);
-      }
-    },
+
     saveChanges(choice) {
       if (choice) {
         this.inform_dialog_done = true;
-        this.save_dialog = false;
+        this.save_records = false;
         let formatted = {
           client_ID: this.client.client_ID,
+          client_name: this.client.client_name,
           storage_ID: this.storage.storage_ID,
-          product_ID: this.product.product_ID,
-          updated_datetime: this.today_dashed,
-          record_datetime: this.selectedDate,
+          product_name: this.product.productName,
+          product_ID: this.product.productID,
+          storage_name: this.storage.storage_name,
+          record_datetime: this.date,
           quantity: this.quantity,
-          inout_type_ID: 1,
-          record_ID: this.edit_object.record_ID
+          inout_type_ID: 2
         };
-        outgoingRepository.update(formatted);
-        this.close();
+
+        this.close(formatted);
       } else {
-        this.save_dialog = false;
+        this.save_records = false;
       }
-      setTimeout(() => {
-        this.refresh();
-      }, 1000);
     }
   }
 };

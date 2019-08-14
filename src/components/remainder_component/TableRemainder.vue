@@ -1,6 +1,10 @@
 <template lang="pug">
 v-content(v-if='!isLoading')
-  v-data-table.elevation-0.product-table(:headers='headers' :items='data_is_sorted ? remainder_data_sorted : remainder_data' :rows-per-page-items='[25,50]' :search='search')
+  v-data-table.elevation-0.product-table(
+    :headers='headers' 
+    :items='data_is_sorted ? remainder_data_sorted : remainder_data' 
+    :rows-per-page-items='[25,50]' 
+    :search='search')
     template(v-slot:items='props')
       td {{ props.item.productName }}
       td.text-xs-left(style='bold') {{ props.item.categoryName }}
@@ -17,7 +21,7 @@ v-content(v-if='!isLoading')
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("remainder");
-
+const storagesRepository = RepositoryFactory.get("storages");
 import { mapGetters, mapMutations } from "vuex";
 
 export default {
@@ -28,12 +32,19 @@ export default {
   computed: {
     ...mapGetters({
       remainder_data: "remainders/get_remainder_data",
-      data_is_sorted: "remainders/get_sorted",
-      remainder_data_sorted: "remainders/get_sorted_data"
+      data_is_sorted: "remainders/get_sorted_flag",
+      remainder_data_sorted: "remainders/get_sorted_data",
+      user_role: "logged_user/get_user_role",
+      user_ID: "logged_user/get_user_ID",
+      storage_list: "storages/get_storages"
     })
   },
   created() {
-    this.getRemainders();
+    if (this.user_role === "Завсклад") {
+      this.getStorage(this.user_ID);
+    } else {
+      this.getRemainders();
+    }
   },
   data() {
     return {
@@ -53,13 +64,34 @@ export default {
   },
   methods: {
     ...mapMutations({
-      load_remainder_data: "remainders/load_remainder_data"
+      load_remainder_data: "remainders/load_remainder_data",
+      load_storages: "storages/load_storages"
     }),
+    async getStorage(user_ID) {
+      const { data } = await storagesRepository.get_single(user_ID);
+      var array = [data];
+      this.load_storages(array);
+      this.getRemainders();
+    },
     async getRemainders() {
-      this.isLoading = true;
-      const { data } = await repository.get();
-      this.isLoading = false;
-      this.load_remainder_data(data);
+      if (this.user_role === "Завсклад" && this.storage_list[0] !== undefined) {
+        var storage_id = this.storage_list[0].storage_ID;
+        this.isLoading = true;
+        const { data } = await repository.get_by_storage(storage_id);
+        this.isLoading = false;
+        data.sort(function(a, b) {
+          return a.productName.toLowerCase().localeCompare(b.productName);
+        });
+        this.load_remainder_data(data);
+      } else {
+        this.isLoading = true;
+        const { data } = await repository.get();
+        this.isLoading = false;
+        data.sort(function(a, b) {
+          return a.productName.toLowerCase().localeCompare(b.productName);
+        });
+        this.load_remainder_data(data);
+      }
     }
   }
 };

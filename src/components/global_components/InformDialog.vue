@@ -1,8 +1,8 @@
 <template lang="pug">
 v-dialog(v-model='inform_dialog_done' max-width='290')
   v-card
-    v-card-title.headline changes saved
-    v-card-text all changes are saved.
+    v-card-title.headline Изменения сохранены
+    v-card-text Все изменения сохранены
     v-card-actions
       v-spacer
       v-btn(color='green darken-1' flat='flat' @click='inform_dialog_done=false') ok

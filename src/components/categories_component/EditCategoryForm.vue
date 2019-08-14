@@ -30,17 +30,11 @@ div
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("categories");
-
 import { mapMutations, mapGetters } from "vuex";
 import { setTimeout } from "timers";
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 export default {
   name: "edit-category-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
   props: {
     appear: Boolean,
     edit_object: Object

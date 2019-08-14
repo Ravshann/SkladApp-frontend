@@ -25,19 +25,35 @@ import { mapGetters, mapMutations } from "vuex";
 import OutgoingRecordEditForm from "./OutgoingRecordEditForm";
 export default {
   name: "table-outgoing",
-  props: { 
-    search: String() },
-  components: { OutgoingRecordEditForm },
-  created() {
-    if (this.outgoing_records.length === 0) {
-      this.getOutgoingData();
-    }
+  props: {
+    search: String()
   },
+  components: { OutgoingRecordEditForm },
+  mounted() {
+    var storage = 0;
+    if (this.storage_list !== undefined) storage = this.storage_list;
+    if (this.user_role === "Завсклад" && this.outgoing_records.length === 0) {
+      if (storage.length !== 0)
+        this.getOutgoingDataByStorage(storage[0].storage_ID);
+      else
+        this.$store.subscribe(mutation => {
+          switch (mutation.type) {
+            case "storages/load_storages":
+              storage = mutation.payload;
+              this.getOutgoingDataByStorage(storage[0].storage_ID);
+              break;
+          }
+        });
+    } else if (this.outgoing_records.length === 0) this.getOutgoingData();
+  },
+
   computed: {
     ...mapGetters({
       outgoing_records: "outgoing/get_outgoing_data",
       data_is_sorted: "outgoing/get_sorted_flag",
-      sorted_data: "outgoing/get_sorted_data"
+      sorted_data: "outgoing/get_sorted_data",
+      user_role: "logged_user/get_user_role",
+      storage_list: "storages/get_storages"
     })
   },
   data() {
@@ -67,6 +83,12 @@ export default {
     async getOutgoingData() {
       this.isLoading = true;
       const { data } = await repository.get();
+      this.isLoading = false;
+      this.load_outgoing_data(data);
+    },
+    async getOutgoingDataByStorage(storage_id) {
+      this.isLoading = true;
+      const { data } = await repository.get_by_storage(storage_id);
       this.isLoading = false;
       this.load_outgoing_data(data);
     },

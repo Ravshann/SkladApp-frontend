@@ -28,7 +28,7 @@ div
         v-autocomplete(
           v-model='department_manager' 
           :items="department_manager_list" 
-          label='Зав-Склад' 
+          label='Управляющий' 
           prepend-icon='streetview'  
           persistent-hint 
           item-text='first_name'
@@ -41,14 +41,10 @@ const repository = RepositoryFactory.get("departments");
 
 import { mapMutations, mapGetters } from "vuex";
 import { setTimeout } from "timers";
-import SaveChangesDialog from "../global_components/SaveChangesDialog";
-import InformDialogDone from "../global_components/InformDialog";
+
 export default {
   name: "edit-user-form",
-  components: {
-    SaveChangesDialog,
-    InformDialogDone
-  },
+  
   props: {
     appear: Boolean,
     edit_object: Object
