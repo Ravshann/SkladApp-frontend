@@ -74,7 +74,8 @@ export default {
   computed: {
     ...mapGetters({
       username: "logged_user/get_username",
-      user_role: "logged_user/get_user_role"
+      user_role: "logged_user/get_user_role",
+      user_ID: "logged_user/get_user_ID"
     })
   },
   mounted() {
@@ -96,12 +97,12 @@ export default {
     }),
 
     log_out() {
-      localStorage.removeItem("sklad-user-token");
+      sessionStorage.removeItem("sklad-user-token");
       this.load_user_logging_status(false);
       this.load_user_token("");
       this.load_user_role("");
       this.load_username("");
-      this.load_user_ID(0);
+      this.load_user_ID(-1);
       setTimeout(() => {
         this.$router.go("/login");
       }, 500);
@@ -135,7 +136,10 @@ export default {
     set_access_level() {
       if (this.user_role === "admin") {
         this.user_access_level = 2;
-      } else if (this.user_role === "Оффис") {
+      } else if (
+        this.user_role === "Офис" ||
+        this.user_role === "Наблюдатель"
+      ) {
         this.user_access_level = 1;
       } else if (
         this.user_role === "Управляющий" ||
@@ -150,6 +154,7 @@ export default {
       else if (this.user_access_level === 1)
         this.sections = [
           ...this.basic_sections,
+          this.exchange_section,
           this.product_sections[0],
           this.department_sections[0],
           this.admin_sections[0]
@@ -157,6 +162,7 @@ export default {
       else if (this.user_access_level === 2 || this.user_access_level === 1)
         this.sections = [
           ...this.basic_sections,
+          this.exchange_section,
           this.product_sections[0],
           this.department_sections[0],
           ...this.admin_sections
@@ -244,17 +250,22 @@ export default {
           link: "/incoming"
         },
         {
-          title: "Возвраты",
-          icon: "$vuetify.icons.return",
-          link: "/returned"
-        },
-        {
-          title: "Дефектные",
+          title: "Возвраты/Дефектные",
           icon: "$vuetify.icons.defects",
-          link: "/defected"
+          link: "/returned"
         }
+        // {
+        //   title: "Дефектные",
+        //   icon: "$vuetify.icons.defects",
+        //   link: "/defected"
+        // }
       ],
-      sections: []
+      sections: [],
+      exchange_section: {
+        title: "Перемещении",
+        icon: "$vuetify.icons.movement",
+        link: "/exchange"
+      }
     };
   }
 };

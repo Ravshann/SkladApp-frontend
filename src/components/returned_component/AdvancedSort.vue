@@ -6,12 +6,12 @@ div
     v-card
       v-card-title.headline Сортировать по
       v-card-text
-        v-autocomplete(v-model='product_name' :items='returned_data' label='Наименование товара' persistent-hint item-text='product_name')
-        v-autocomplete(v-model='category_name' :items='returned_data' label='Kатегория' persistent-hint item-text='category_name')
-        v-autocomplete(v-model='storage_name' :items='returned_data' label='Склад' persistent-hint item-text='storage_name')
-        v-autocomplete(v-model='client_name' :items='returned_data' label='Клиент' persistent-hint item-text='client_name')
+        v-autocomplete(v-model='product_name' :items='returned_data' label='Наименование товара' persistent-hint item-text='product_name' clearable=true)
+        v-autocomplete(v-model='category_name' :items='returned_data' label='Kатегория' persistent-hint item-text='category_name' clearable=true)
+        v-autocomplete(v-model='storage_name' :items='returned_data' label='Склад' persistent-hint item-text='storage_name' clearable=true)
+        v-autocomplete(v-model='client_name' :items='returned_data' label='Клиент' persistent-hint item-text='client_name' clearable=true)
         v-layout
-          data-pick-menu(@date-selected-event='fromDateSelected' :custom_date="default_from_date" :maximum_date="today")
+          data-pick-menu(@date-selected-event='fromDateSelected' :custom_date="first_day" :maximum_date="today")
           data-pick-menu(@date-selected-event='toDateSelected' :maximum_date="today")
       v-card-actions
         v-btn(color='primary' flat @click='close') ЗАКРЫТЬ
@@ -27,8 +27,10 @@ export default {
 
   computed: {
     ...mapGetters({
+      categories: "categories/get_categories",
       returned_data: "returned/get_returned_data",
-      today: "date/get_dashed_date"
+      today: "date/get_dashed_date",
+      first_day: "date/get_first_day"
     })
   },
   beforeDestroy() {
@@ -73,6 +75,21 @@ export default {
       this.set_sorted_flag(false);
       this.advanced_sort_dialog = false;
     },
+    find_matching_categories() {
+      let matching_categories = this.categories.filter(obj => {
+        return (
+          obj.category_name === this.category_name ||
+          obj.parent_category_name === this.category_name
+        );
+      });
+      Array.prototype.get_names = function() {
+        for (let i = 0; i < this.length; i++) {
+          this[i] = this[i].category_name;
+        }
+      };
+      matching_categories.get_names();
+      return matching_categories;
+    },
     sort_out() {
       let match = false;
       let sorted_array = [];
@@ -81,8 +98,11 @@ export default {
         if (this.product_name !== undefined)
           name_match = element.product_name === this.product_name;
         let category_match = true;
-        if (this.category_name !== undefined)
-          category_match = element.category_name === this.category_name;
+        if (this.category_name !== undefined) {
+          let matching_categories = this.find_matching_categories();
+          category_match = matching_categories.includes(element.category_name);
+          // category_match = element.category_name === this.category_name;
+        }
         let storage_match = true;
         if (this.storage_name !== undefined)
           storage_match = element.storage_name === this.storage_name;

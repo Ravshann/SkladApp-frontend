@@ -2,13 +2,13 @@ import Vue from 'vue'
 import axios from "axios"
 import Router from 'vue-router'
 import store from '../store'
-import Dashboard from '../components/Dashboard'
-import Login from '@/components/Login.vue'
+import Dashboard from '../components/base_components/Dashboard'
+import Login from '../components/base_components/Login.vue'
 import Outgoing from "../components/outgoing_component/Outgoing"
 import Incoming from "../components/incoming_component/Incoming"
 import Remainder from "../components/remainder_component/Remainder"
 import Returned from "../components/returned_component/Returned"
-import Defected from "../components/defected_component/Defected"
+// import Defected from "../components/defected_component/Defected"
 import Clients from "../components/clients_component/Clients"
 import Products from "../components/products_component/Products"
 import suppliers from "../components/suppliers_component/Suppliers"
@@ -19,6 +19,7 @@ import companies from "../components/companies_component/Companies"
 import users from "../components/users_component/Users"
 import departments from "../components/departments_component/Departments"
 import PageNotFound from "../components/global_components/PageNotFound"
+import Exchange from "../components/exchange_component/Exchange"
 
 import RepositoryFactory from "../services/RepositoryFactory";
 const repository = RepositoryFactory.get("login_control");
@@ -34,40 +35,59 @@ async function getStorage(user_ID) {
   const { data } = await storagesRepository.get_single(user_ID);
   return data;
 }
+async function getRegionalStorages(user_ID) {
+  const { data } = await storagesRepository.get_regional_storages(user_ID);
+  return data;
+}
 function login_guard(to, from, next) {
-  let token = localStorage.getItem("sklad-user-token");
+  let token = sessionStorage.getItem("sklad-user-token");
 
   if (store.getters['logged_user/get_logged_status']) {
     next();
   } else if (token !== null) {
 
     let new_credentials = refresh_token({ "token": token });
-    new_credentials.then(result => {
 
-      if (result.message === undefined) {
-        store.commit("logged_user/load_user_token", result.token);
-        store.commit("logged_user/load_user_status", true);
-        store.commit("logged_user/load_user_role", result.role);
-        store.commit("logged_user/load_username", result.username);
-        store.commit("logged_user/load_user_ID", result.user_ID);
-        localStorage.removeItem("sklad-user-token");
-        localStorage.setItem("sklad-user-token", result.token);
-        axios.defaults.headers.common.Authorization = "Bearer " + result.token;
+    new_credentials
+      .then(result => {
 
-        if (result.role === "Завсклад") {
+        if (result.message === undefined) {
+          store.commit("logged_user/load_user_token", result.token);
+          store.commit("logged_user/load_user_status", true);
+          store.commit("logged_user/load_user_role", result.role);
+          store.commit("logged_user/load_username", result.username);
+          store.commit("logged_user/load_user_ID", result.user_ID);
+          sessionStorage.setItem("sklad-user-token", result.token);
+          axios.defaults.headers.common.Authorization = "Bearer " + result.token;
 
-          let storage = getStorage(result.user_ID);
-          storage.then(stor => {
-            var array = [stor];
-            store.commit("storages/load_storages", array);
-          });
+          if (result.role === "Завсклад") {
+            let storage = getStorage(result.user_ID);
+            storage.then(stor => {
+              var array = [stor];
+              store.commit("storages/load_storages", array);
+            });
+          }
+          else if (result.role === "Управляющий") {
+            let storage = getRegionalStorages(result.user_ID);
+            storage.then(stor => {
+              var array = stor;
+              store.commit("storages/load_storages", array);
+            });
+          }
+          next();
         }
-        next();
-      }
-      else {
-        next("/login");
-      }
-    });
+        else {
+          next("/login");
+        }
+      })
+      .catch(function (error_response) {
+        let status = error_response.response.status;
+        let message = error_response.response.data.message;
+        if (status === 500 && message === "Expired or invalid JWT token") {
+          sessionStorage.removeItem("sklad-user-token");
+          next("/login");
+        }
+      });
   }
   else {
     next("/login");
@@ -75,7 +95,7 @@ function login_guard(to, from, next) {
 }
 
 function token_check(to, from, next) {
-  let token = localStorage.getItem("sklad-user-token");
+  let token = sessionStorage.getItem("sklad-user-token");
   if (token !== null) {
     let new_credentials = refresh_token({ "token": token });
 
@@ -87,8 +107,7 @@ function token_check(to, from, next) {
         store.commit("logged_user/load_user_role", result.role);
         store.commit("logged_user/load_username", result.username);
         store.commit("logged_user/load_user_ID", result.user_ID);
-        localStorage.removeItem("sklad-user-token");
-        localStorage.setItem("sklad-user-token", result.token);
+        sessionStorage.setItem("sklad-user-token", result.token);
         axios.defaults.headers.common.Authorization = "Bearer " + result.token;
 
         if (result.role === "Завсклад") {
@@ -97,6 +116,13 @@ function token_check(to, from, next) {
             var array = [stor];
             store.commit("storages/load_storages", array);
           })
+        }
+        else if (result.role === "Управляющий") {
+          let storage = getRegionalStorages(result.user_ID);
+          storage.then(stor => {
+            var array = stor;
+            store.commit("storages/load_storages", array);
+          });
         }
         next("/");
       }
@@ -111,7 +137,7 @@ function token_check(to, from, next) {
 
 function first_access_level_guard(to, from, next) {
   let role = store.getters['logged_user/get_user_role'];
-  if (role === "admin" || role === "Оффис") {
+  if (role === "admin" || role === "Офис" || role === "Наблюдатель") {
     next();
   }
   else {
@@ -142,7 +168,9 @@ const routes = [
       { path: "outgoing", name: "outgoing", component: Outgoing },
       { path: "incoming", name: "incoming", component: Incoming },
       { path: "returned", name: "returned", component: Returned },
-      { path: "defected", name: "defected", component: Defected },
+      // { path: "defected", name: "defected", component: Defected },
+
+      { path: "exchange", name: "exchange", component: Exchange, beforeEnter: first_access_level_guard },
 
       { path: "products", name: "products", component: Products, beforeEnter: first_access_level_guard },
       { path: "categories", name: "categories", component: categories, beforeEnter: first_access_level_guard },

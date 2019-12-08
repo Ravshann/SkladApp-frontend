@@ -12,7 +12,7 @@ div
         v-autocomplete(v-model='storage_name' :items='defected_data' label='Склад' persistent-hint item-text='storage_name')
         v-autocomplete(v-model='supplier_name' :items='defected_data' label='Поставшик' persistent-hint item-text='supplier_name')
         v-layout
-          data-pick-menu(@date-selected-event='fromDateSelected' :custom_date="default_from_date" :maximum_date="today")
+          data-pick-menu(@date-selected-event='fromDateSelected' :custom_date="first_day" :maximum_date="today")
           data-pick-menu(@date-selected-event='toDateSelected' :maximum_date="today")
       v-card-actions
         v-btn(color='primary' flat @click='close') ЗАКРЫТЬ
@@ -29,7 +29,8 @@ export default {
   computed: {
     ...mapGetters({
       defected_data: "defected/get_data",
-      today: "date/get_dashed_date"
+      today: "date/get_dashed_date",
+      first_day: "date/get_first_day"
     })
   },
   beforeDestroy() {

@@ -17,6 +17,7 @@ import DepartmentsRepository from "./DepartmentsRepository"
 import DepartmentManagersRepository from "./DeparmentManagersRepository"
 import StorageManagersRepository from "./StorageManagersRepository"
 import LoginControl from "./LoginControl"
+import ExchangeRepository from "./ExchangesRepository"
 const repositories = {
     remainder: RemainderRepository,
     clients: ClientsRepository,
@@ -36,7 +37,8 @@ const repositories = {
     departments: DepartmentsRepository,
     department_managers: DepartmentManagersRepository,
     storage_managers: StorageManagersRepository,
-    login_control: LoginControl
+    login_control: LoginControl,
+    exchanges: ExchangeRepository,
 };
 
 export default {

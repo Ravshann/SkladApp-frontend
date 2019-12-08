@@ -36,7 +36,6 @@ div
           return-object)
 </template>
 <script>
-
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("departments");
 
@@ -45,7 +44,7 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-departments-form",
-  
+
   computed: {
     ...mapGetters({
       company_list: "companies/get_companies",
@@ -105,7 +104,7 @@ export default {
       }
       setTimeout(() => {
         this.updateStore();
-      }, 1000);
+      }, 2000);
     }
   }
 };

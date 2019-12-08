@@ -16,12 +16,12 @@ div
         data-pick-menu(@date-selected-event='dateSelected' :custom_date='record_datetime')
           // autocomplete fields
         v-autocomplete(
-          v-model='supplier' 
-          :items="supplier_list" 
-          label='Поставщик' 
-          prepend-icon='local_shipping' 
+          v-model='supplier_storage' 
+          :items="storage_list" 
+          label='Склад отправитель' 
+          prepend-icon='home' 
           persistent-hint 
-          item-text='supplier_name'
+          item-text='storage_name'
           return-object)
         v-autocomplete(
           v-model='product' 
@@ -33,8 +33,8 @@ div
           return-object)
         v-autocomplete(
           v-model='storage' 
-          :items="storage_list" 
-          label='Склад' 
+          :items="defected_storages" 
+          label='Склад получатель' 
           prepend-icon='home' 
           persistent-hint 
           item-text='storage_name' 
@@ -58,11 +58,12 @@ export default {
     edit_object: Object
   },
   mounted() {
-    if (this.edit_object.supplier_name !== undefined) {
-      this.supplier = {
-        supplier_name: this.edit_object.supplier_name,
-        supplier_ID: this.edit_object.supplier_ID
+    if (this.edit_object.supplier_storage_name !== undefined) {
+      this.supplier_storage = {
+        storage_name: this.edit_object.supplier_storage_name,
+        storage_ID: this.edit_object.supplier_storage_ID
       };
+
       this.product = {
         product_name: this.edit_object.product_name,
         product_ID: this.edit_object.product_ID
@@ -72,8 +73,8 @@ export default {
         storage_ID: this.edit_object.storage_ID
       };
     } else {
-      let supplier = this.supplier_list.filter(obj => {
-        return obj.supplier_ID === this.edit_object.supplier_ID;
+      let supplier_storage = this.storage_list.filter(obj => {
+        return obj.storage_ID === this.edit_object.supplier_storage_ID;
       });
       let product = this.product_list.filter(obj => {
         return obj.product_ID === this.edit_object.product_ID;
@@ -81,7 +82,7 @@ export default {
       let storage = this.storage_list.filter(obj => {
         return obj.storage_ID === this.edit_object.storage_ID;
       });
-      this.supplier = supplier[0];
+      this.supplier_storage = supplier_storage[0];
       this.product = product[0];
       this.storage = storage[0];
     }
@@ -90,11 +91,11 @@ export default {
   },
   computed: {
     ...mapGetters({
-      supplier_list: "suppliers/get_suppliers",
       product_list: "products/get_products",
       storage_list: "storages/get_storages",
       today: "date/get_dashed_date",
-      user_role: "logged_user/get_user_role"
+      user_role: "logged_user/get_user_role",
+      defected_storages: "storages/get_defected_storages"
     })
   },
   data() {
@@ -104,7 +105,7 @@ export default {
       date: "",
       record_datetime: "",
       quantity: 0,
-      supplier: Object,
+      supplier_storage: Object,
       product: Object,
       storage: Object
     };
@@ -121,7 +122,7 @@ export default {
     },
     close(data) {
       this.$emit("edit-form-closed", data);
-      if (this.edit_object.supplier_name !== undefined) {
+      if (this.edit_object.supplier_storage_name !== undefined) {
         defectedRepository.update(data);
         setTimeout(() => {
           this.refresh();
@@ -132,10 +133,32 @@ export default {
       const { data } = await defectedRepository.get_by_storage(storage_id);
       this.load_defected_data(data);
     },
+    async getDefectedDataBySupplierStorage(storage_id) {
+      const { data } = await defectedRepository.get_by_supplier_storage(
+        storage_id
+      );
+      this.load_defected_data(data);
+    },
+    async getDefectedDataByDepartment(storage_ids) {
+      const { data } = await defectedRepository.get_by_department_storages(
+        storage_ids
+      );
+      this.load_defected_data(data);
+    },
     async refresh() {
-      if (this.user_role === "Завсклад")
-        this.getDefectedDataByStorage(this.storage_list[0].storage_ID);
-      else {
+      if (this.user_role === "Завсклад") {
+        if (this.storage_list[0].storage_type === "defected")
+          this.getDefectedDataByStorage(this.storage_list[0].storage_ID);
+        else
+          this.getDefectedDataBySupplierStorage(
+            this.storage_list[0].storage_ID
+          );
+      } else if (this.user_role === "Управляющий") {
+        let storage_ids = this.storage_list.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getDefectedDataByDepartment(storage_ids);
+      } else {
         const { data } = await defectedRepository.get();
         this.load_defected_data(data);
       }
@@ -145,8 +168,8 @@ export default {
         this.inform_dialog_done = true;
         this.save_dialog = false;
         let formatted = {
-          supplier_ID: this.supplier.supplier_ID,
-          supplier_name: this.supplier.supplier_name,
+          supplier_storage_ID: this.supplier_storage.storage_ID,
+          supplier_storage_name: this.supplier_storage.storage_name,
           storage_ID: this.storage.storage_ID,
           storage_name: this.storage.storage_name,
           product_name: this.product.product_name,

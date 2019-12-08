@@ -3,7 +3,7 @@ v-content
   v-data-table.elevation-0.product-table(:headers='headers' :items='attributes' :rows-per-page-items='[25,50]' :search='search')
     template(v-slot:items='props')
       td {{ props.item.attribute_name }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   edit-attribute-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")            
@@ -22,6 +22,10 @@ export default {
   components: {
     EditAttributeForm
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.attributes.length === 0) {
       this.getData();
@@ -29,11 +33,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      attributes: "attributes/get_attributes"
+      attributes: "attributes/get_attributes",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
+      enabled: true,
       edit: false,
       edit_object: Object,
       headers: [

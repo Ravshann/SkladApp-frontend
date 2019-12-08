@@ -16,55 +16,62 @@ div
         save-changes-dialog(:save_records="save_records" @save-changes-dialog-event="saveChanges")
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
-        // data pick menu
-        data-pick-menu(@date-selected-event='dateSelected')
-          // autocomplete fields
-        v-autocomplete(
-          v-model='client' 
-          :items='clients' 
-          label='От кого(клиент)' 
-          prepend-icon='person' 
-          persistent-hint 
-          item-text='client_name'
-          return-object)
-        v-autocomplete(
-          v-model='product' 
-          :items='products' 
-          label='Наименование товара' 
-          prepend-icon='sort' 
-          persistent-hint 
-          item-text='product_name' 
-          return-object)
-        v-autocomplete(
-          v-model='storage' 
-          :items='storages' 
-          label='Склад' 
-          prepend-icon='home' 
-          persistent-hint 
-          item-text='storage_name'
-          return-object)
-        v-text-field(
-          v-model.number='quantity' 
-          type='number'  
-          label='Количество' 
-          prepend-icon='edit' 
-          item-text='quantity' 
-          placeholder='0')
-        v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
-          v-icon(dark) add
-        v-data-table(:headers='headers' :items='list')
-          template(v-slot:items='props')
-            td.text-xs-left {{ props.item.product_name }}
-            td.text-xs-left {{ props.item.quantity }}
-            td.text-xs-left {{ props.item.storage_name }}
-            td.text-xs-left {{ props.item.client_name }}
-            td.text-xs-left {{ props.item.date }}
-            td.text-xs-left
-              span
-                v-icon(@click="deleteRecord(props.item)" color='red') clear
-            td.text-xs-left
-              span
-                v-icon(@click="editRecord(props.item)" color='blue') create
+        v-layout(row wrap)     
+          v-layout(column wrap id="first_column")
+            // data pick menu
+            data-pick-menu(@date-selected-event='dateSelected')
+              // autocomplete fields
+            v-autocomplete(
+              v-model='client' 
+              :items='clients' 
+              label='От кого(клиент)' 
+              prepend-icon='person' 
+              persistent-hint 
+              item-text='client_name'
+              return-object
+              clearable)
+            v-autocomplete(
+              v-model='product' 
+              :items='products' 
+              label='Наименование товара' 
+              prepend-icon='sort' 
+              persistent-hint 
+              item-text='product_name' 
+              return-object
+              clearable)
+            v-autocomplete(
+              v-model='storage' 
+              :items='other_storages' 
+              label='Склад' 
+              prepend-icon='home' 
+              persistent-hint 
+              item-text='storage_name'
+              return-object
+              clearable)
+            v-text-field(
+              v-model.number='quantity' 
+              type='number'  
+              label='Количество' 
+              prepend-icon='edit' 
+              item-text='quantity' 
+              placeholder='0'
+              clearable)
+            v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
+              v-icon(dark) add
+          v-layout.pl-4(column wrap)     
+            v-data-table(:headers='headers' :items='list')
+              template(v-slot:items='props')
+                td.text-xs-left {{ props.item.product_name }}
+                td.text-xs-left {{ props.item.quantity }}
+                td.text-xs-left {{ props.item.storage_name }}
+                td.text-xs-left {{ props.item.client_name }}
+                td.text-xs-left {{ props.item.date }}
+                td.text-xs-left
+                  span
+                    v-icon(@click="deleteRecord(props.item)" color='red') clear
+                td.text-xs-left
+                  span
+                    v-icon(@click="editRecord(props.item)" color='blue') create
         returned-record-edit-form(
           v-if="edit" 
           :appear="edit" 
@@ -93,6 +100,7 @@ export default {
       clients: "clients/get_clients",
       products: "products/get_products",
       storages: "storages/get_storages",
+      other_storages: "storages/get_other_storages",
       returned_data: "returned/get_returned_data",
       user_role: "logged_user/get_user_role"
     })
@@ -111,7 +119,7 @@ export default {
       product: Object,
       storage: Object,
       client: Object,
-      quantity: "",
+      quantity: 0,
       date: Date,
 
       headers: [
@@ -161,10 +169,19 @@ export default {
       const { data } = await repository.get_by_storage(storage_id);
       this.load_returned_data(data);
     },
+    async getReturnedDataByDepartment(storage_ids) {
+      const { data } = await repository.get_by_department_storages(storage_ids);
+      this.load_returned_data(data);
+    },
     async refresh() {
       if (this.user_role === "Завсклад")
         this.getReturnedDataByStorage(this.storages[0].storage_ID);
-      else {
+      else if (this.user_role === "Управляющий") {
+        let storage_ids = this.storages.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getReturnedDataByDepartment(storage_ids);
+      } else {
         const { data } = await repository.get();
         this.load_returned_data(data);
       }
@@ -205,7 +222,7 @@ export default {
           client_ID: data.client_ID,
           quantity: data.quantity,
           record_datetime: data.record_datetime,
-          inout_type_ID: 2,
+          inout_type_ID: 3,
           note: "some"
         };
       }
@@ -230,10 +247,6 @@ export default {
       };
       this.list.push(newRow);
       this.detailed_list.push(new_detailed_record);
-      this.product = "";
-      this.storage = "";
-      this.quantity = "";
-      this.client = "";
     },
 
     saveChanges(choice) {
@@ -258,4 +271,10 @@ export default {
   }
 };
 </script>
+<style scoped>
+#first_column {
+  width: 15%;
+}
+</style>
+
 

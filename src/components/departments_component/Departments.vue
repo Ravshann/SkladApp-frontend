@@ -7,14 +7,14 @@ div
       v-spacer
       v-spacer
       v-spacer
-      create-departments-form
+      create-departments-form(v-if="enabled")
   table-departments(:search='search')
   
 </template>
 
 <script>
 import TableDepartments from "./TableDepartments";
-
+import { mapGetters } from "vuex";
 import CreateDepartmentsForm from "./CreateDepartmentsForm";
 export default {
   name: "departments",
@@ -22,10 +22,19 @@ export default {
     TableDepartments,
     CreateDepartmentsForm
   },
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
   data() {
     return {
-      search: ""
+      search: String(),
+      enabled: true
     };
+  },
+  computed: {
+    ...mapGetters({
+      user_role: "logged_user/get_user_role"
+    })
   }
 };
 </script>

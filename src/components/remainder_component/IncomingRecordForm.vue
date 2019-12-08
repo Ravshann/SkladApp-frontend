@@ -2,7 +2,7 @@
 div
   // button for opening dialog
   v-btn(color='primary' dark @click='incoming_dialog = true') Приход
-  // dialog for 'outgoing' button
+  // dialog for 'Incoming' button
   v-dialog(v-model='incoming_dialog' fullscreen hide-overlay transition='dialog-bottom-transition' scrollable)
     v-card(title)
       v-toolbar(card dark color='primary')
@@ -15,50 +15,56 @@ div
         save-changes-dialog(:save_records="save_incoming_records" @save-changes-dialog-event="saveChanges")
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
-        // data pick menu
-        data-pick-menu(@date-selected-event='dateSelected')
-          // autocomplete fields
-        v-autocomplete(
-          v-model='supplier'
-          :items='suppliers' 
-          label='Поставщики' 
-          prepend-icon='local_shipping' 
-          persistent-hint 
-          item-text='supplier_name'
-          return-object)
-        v-autocomplete(
-          v-model='product' 
-          :items='products' 
-          label='Наименование товара' 
-          prepend-icon='sort' 
-          persistent-hint 
-          item-text='product_name'
-          return-object)
-        v-autocomplete(
-          v-model='storage' 
-          :items='storages' 
-          label='Склад' 
-          prepend-icon='home' 
-          persistent-hint 
-          item-text='storage_name'
-          return-object)
-        v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
-        v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
-          v-icon(dark) add
-        v-data-table(:headers='headers' :items='importdata')
-          template(v-slot:items='props')
-            td.text-xs-left {{ props.item.product_name }}
-            td.text-xs-left {{ props.item.quantity }}
-            td.text-xs-left {{ props.item.storage_name }}
-            td.text-xs-left {{ props.item.supplier_name }}
-            td.text-xs-left {{ props.item.record_datetime }}
-            td.text-xs-left
-              span
-                v-icon(@click="deleteRecord(props.item)" color='red') clear
-            td.text-xs-left
-              span
-                v-icon(@click="editRecord(props.item)" color='blue') create
-        incoming-record-edit-form(v-if="edit" :appear="edit" @edit-form-closed="editFinished" :edit_object = "edit_object") 
+        v-layout(row wrap)     
+          v-layout(column wrap id="first_column")
+            // data pick menu
+            data-pick-menu(@date-selected-event='dateSelected')
+              // autocomplete fields
+            v-autocomplete(
+              v-model='supplier'
+              :items='suppliers' 
+              label='Поставщики' 
+              prepend-icon='local_shipping' 
+              persistent-hint 
+              item-text='supplier_name'
+              return-object
+              clearable=true)
+            v-autocomplete(
+              v-model='product' 
+              :items='products' 
+              label='Наименование товара' 
+              prepend-icon='sort' 
+              persistent-hint 
+              item-text='product_name'
+              return-object
+              clearable=true)
+            v-autocomplete(
+              v-model='storage' 
+              :items='storages' 
+              label='Склад' 
+              prepend-icon='home' 
+              persistent-hint 
+              item-text='storage_name'
+              return-object
+              clearable=true)
+            v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
+            v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
+              v-icon(dark) add
+          v-layout.pl-4(column wrap id="second_column")    
+            v-data-table(:headers='headers' :items='importdata')
+              template(v-slot:items='props')
+                td.text-xs-left {{ props.item.product_name }}
+                td.text-xs-left {{ props.item.quantity }}
+                td.text-xs-left {{ props.item.storage_name }}
+                td.text-xs-left {{ props.item.supplier_name }}
+                td.text-xs-left {{ props.item.record_datetime }}
+                td.text-xs-left
+                  span
+                    v-icon(@click="deleteRecord(props.item)" color='red') clear
+                td.text-xs-left
+                  span
+                    v-icon(@click="editRecord(props.item)" color='blue') create
+            incoming-record-edit-form(v-if="edit" :appear="edit" @edit-form-closed="editFinished" :edit_object = "edit_object") 
 </template>
 <script>
 import IncomingRecordEditForm from "./IncomingRecordEditForm";
@@ -79,7 +85,7 @@ export default {
       storages: "storages/get_storages",
       remainder_data: "remainders/get_remainder_data",
       incoming_data: "incoming/get_incoming_data",
-      user_role: "logged_user/get_user_role",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
@@ -185,6 +191,16 @@ export default {
       const { data } = await incomingRepository.get();
       this.load_incoming_data(data);
     },
+    async getIncomingDataByStorage(storage_id) {
+      const { data } = await incomingRepository.get_by_storage(storage_id);
+      this.load_incoming_data(data);
+    },
+    async getIncomingDataByDepartment(storage_ids) {
+      const { data } = await incomingRepository.get_by_department_storages(
+        storage_ids
+      );
+      this.load_incoming_data(data);
+    },
     async refreshRemainder() {
       const { data } = await remainderRepository.get();
       data.sort(function(a, b) {
@@ -200,10 +216,16 @@ export default {
       });
       this.load_remainder_data(data);
     },
-    async getIncomingDataByStorage(storage_id) {
-      const { data } = await incomingRepository.get_by_storage(storage_id);
-      this.load_incoming_data(data);
+    async refreshRemainderByDepartmentStorage(storage_ids) {
+      const { data } = await remainderRepository.get_by_department_storages(
+        storage_ids
+      );
+      data.sort(function(a, b) {
+        return a.productName.toLowerCase().localeCompare(b.productName);
+      });
+      this.load_remainder_data(data);
     },
+
     clearAll: function() {
       this.importdata = [];
       this.detailed_import_list = [];
@@ -213,6 +235,12 @@ export default {
         if (this.user_role === "Завсклад") {
           this.getIncomingDataByStorage(this.storages[0].storage_ID);
           this.refreshRemainderByStorage();
+        } else if (this.user_role === "Управляющий") {
+          let storage_ids = this.storages.map(function(storage) {
+            return { storage_ID: storage.storage_ID };
+          });
+          this.getIncomingDataByDepartment(storage_ids);
+          this.refreshRemainderByDepartmentStorage(storage_ids);
         } else {
           this.refreshRemainder();
           this.getIncomingData();
@@ -238,10 +266,7 @@ export default {
       };
       this.importdata.push(newRow);
       this.detailed_import_list.push(new_detailed_record);
-      this.product = "";
-      this.storage = "";
-      this.quantity = "";
-      this.supplier = "";
+     
     },
     saveChanges: function(choice) {
       if (choice) {
@@ -260,3 +285,11 @@ export default {
   }
 };
 </script>
+<style scoped>
+#first_column{
+  width: 20%
+}
+#second_column{
+  width: 80%
+}
+</style>

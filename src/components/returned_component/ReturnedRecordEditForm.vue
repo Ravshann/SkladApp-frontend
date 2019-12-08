@@ -132,10 +132,21 @@ export default {
       const { data } = await returnedRepository.get_by_storage(storage_id);
       this.load_returned_data(data);
     },
+    async getReturnedDataByDepartment(storage_ids) {
+      const { data } = await returnedRepository.get_by_department_storages(
+        storage_ids
+      );
+      this.load_returned_data(data);
+    },
     async refresh() {
       if (this.user_role === "Завсклад")
         this.getReturnedDataByStorage(this.storage_list[0].storage_ID);
-      else {
+      else if (this.user_role === "Управляющий") {
+        let storage_ids = this.storage_list.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getReturnedDataByDepartment(storage_ids);
+      } else {
         const { data } = await returnedRepository.get();
         this.load_returned_data(data);
       }

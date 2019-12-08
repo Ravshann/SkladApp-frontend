@@ -4,7 +4,8 @@ v-content
     template(v-slot:items='props')
       td {{ props.item.client_name }}
       td.text-xs-left {{ props.item.region}}
-      td.text-xs-left
+      td.text-xs-left {{ props.item.client_type}}
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   clients-create-form(
@@ -26,6 +27,10 @@ export default {
   props: {
     search: String()
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.clients.length === 0) {
       this.getData();
@@ -33,22 +38,23 @@ export default {
   },
   computed: {
     ...mapGetters({
-      clients: "clients/get_clients"
+      clients: "clients/get_clients",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
+      enabled: true,
       isLoading: false,
       edit: false,
       edit_object: Object,
       headers: [
         {
           text: "Имя(клиент)",
-          sortable: false,
-          value: "client_name"
+          sortable: false
         },
-        { text: "Регион", sortable: false, value: "region" },
-        { text: "", sortable: false }
+        { text: "Регион", sortable: false },
+        { text: "Тип", sortable: false }
       ]
     };
   },

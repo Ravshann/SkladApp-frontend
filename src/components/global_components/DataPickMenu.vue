@@ -12,12 +12,12 @@ v-menu(
   template(v-slot:activator='{ on }')
     v-text-field(
       v-model='date' 
-      label='Дата' 
       prepend-icon='event' 
       readonly
       v-on='on')
   v-date-picker(
-    v-model='date' 
+    v-model='date'
+    locale="ru-RU" 
     no-title 
     scrollable
     :min='minimum_date!==undefined ? maximum_date : ""'

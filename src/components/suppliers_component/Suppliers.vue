@@ -5,12 +5,12 @@ div
     v-layout(row)
       v-text-field(v-model='search' append-icon='search' label='Поиск...' single-line hide-details)
       v-spacer
-      v-text-field(v-model='newSupplier' append-icon='person' label='Новый поставщик' single-line hide-details)
-      v-btn(color='indigo' @click='create' fab dark  flat) 
-        v-icon(dark) {{icon}}
-      //- advanced-sort(:search='search')
-      //- excel-generator
-
+      v-spacer
+      v-spacer
+      v-layout(v-if="enabled")
+        v-text-field(v-model='newSupplier' append-icon='person' label='Новый поставщик' single-line hide-details)
+        v-btn(color='indigo' @click='create' fab dark  flat) 
+          v-icon(dark) {{icon}}
       save-changes-dialog(:save_records="save_outgoing_records" @save-changes-dialog-event="saveChanges")
       inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
   table-suppliers(:search='search')
@@ -27,18 +27,22 @@ export default {
   components: {
     TableSuppliers
   },
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
   data() {
     return {
       save_dialog: false,
       inform_dialog_done: false,
-      newSupplier: "",
+      newSupplier: String(),
       icon: "add",
-      search: ""
+      search: String()
     };
   },
   computed: {
     ...mapGetters({
       today: "date/get_date",
+      user_role: "logged_user/get_user_role"
     })
   },
   methods: {

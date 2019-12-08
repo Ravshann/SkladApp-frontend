@@ -11,7 +11,7 @@ v-content
       td.text-xs-left {{ props.item.storage_name}}
       td.text-xs-left {{ props.item.client_name }}
       td.text-xs-left {{ props.item.record_datetime }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   returned-record-edit-form(
@@ -33,6 +33,10 @@ export default {
   props: {
     search: String()
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     var storage = 0;
     if (this.storage_list !== undefined) storage = this.storage_list;
@@ -48,6 +52,26 @@ export default {
               break;
           }
         });
+    } else if (
+      this.user_role === "Управляющий" &&
+      this.returned_records.length === 0
+    ) {
+      if (storage.length !== 0) {
+        this.storage_ids = storage.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getReturnedDataByDepartment(this.storage_ids);
+      } else
+        this.$store.subscribe(mutation => {
+          switch (mutation.type) {
+            case "storages/load_storages":
+              this.storage_ids = mutation.payload.map(function(storage) {
+                return { storage_ID: storage.storage_ID };
+              });
+              this.getReturnedDataByDepartment(this.storage_ids);
+              break;
+          }
+        });
     } else if (this.returned_records.length === 0) this.getReturnedData();
   },
   computed: {
@@ -58,6 +82,22 @@ export default {
       user_role: "logged_user/get_user_role",
       storage_list: "storages/get_storages"
     })
+  },
+  data() {
+    return {
+      enabled: true,
+      isLoading: false,
+      edit: false,
+      edit_object: Object,
+      storage_ids: [],
+      headers: [
+        { text: "Наименование товара", sortable: false, value: "product_name" },
+        { text: "Количество", sortable: false, value: "quantity" },
+        { text: "Склад", sortable: false, value: "product_name" },
+        { text: "От кого(клиент)", sortable: false, value: "client_name" },
+        { text: "Дата", sortable: false, value: "record_datetime" }
+      ]
+    };
   },
   methods: {
     ...mapMutations({
@@ -75,25 +115,16 @@ export default {
       this.isLoading = false;
       this.load_data(data);
     },
+    async getReturnedDataByDepartment(storage_ids) {
+      this.isLoading = true;
+      const { data } = await repository.get_by_department_storages(storage_ids);
+      this.isLoading = false;
+      this.load_data(data);
+    },
     editRow(row) {
       this.edit_object = row;
       this.edit = true;
     }
-  },
-  data() {
-    return {
-      isLoading: false,
-      edit: false,
-      edit_object: Object,
-      headers: [
-        { text: "Наименование товара", sortable: false, value: "product_name" },
-        { text: "Количество", sortable: false, value: "quantity" },
-        { text: "Склад", sortable: false, value: "product_name" },
-        { text: "От кого(клиент)", sortable: false, value: "client_name" },
-        { text: "Дата", sortable: false, value: "record_datetime" },
-        { text: "", sortable: false }
-      ]
-    };
   }
 };
 </script>

@@ -12,7 +12,7 @@ v-content
       td.text-xs-left {{ props.item.storage_name}}
       td.text-xs-left {{ props.item.supplier_name }}
       td.text-xs-left {{ props.item.record_datetime }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create   
   incoming-record-edit-form(v-if="edit" :appear="edit" @edit-form-closed="edit=false" :edit_object = "edit_object")                    
@@ -27,6 +27,10 @@ export default {
   components: {
     IncomingRecordEditForm
   },
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   mounted() {
     var storage = 0;
     if (this.storage_list !== undefined) storage = this.storage_list;
@@ -39,6 +43,26 @@ export default {
             case "storages/load_storages":
               storage = mutation.payload;
               this.getIncomingDataByStorage(storage[0].storage_ID);
+              break;
+          }
+        });
+    } else if (
+      this.user_role === "Управляющий" &&
+      this.incoming_records.length === 0
+    ) {
+      if (storage.length !== 0) {
+        this.storage_ids = storage.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getIncomingDataByDepartment(this.storage_ids);
+      } else
+        this.$store.subscribe(mutation => {
+          switch (mutation.type) {
+            case "storages/load_storages":
+              this.storage_ids = mutation.payload.map(function(storage) {
+                return { storage_ID: storage.storage_ID };
+              });
+              this.getIncomingDataByDepartment(this.storage_ids);
               break;
           }
         });
@@ -57,6 +81,26 @@ export default {
       storage_list: "storages/get_storages"
     })
   },
+  data: function() {
+    return {
+      enabled: true,
+      isLoading: false,
+      edit: false,
+      edit_object: Object,
+      storage_ids: [],
+      headers: [
+        {
+          text: "Наименование товара",
+          value: "product_name",
+          sortable: false
+        },
+        { text: "Количество", value: "quantity", sortable: false },
+        { text: "Склад", value: "storage_name", sortable: false },
+        { text: "От кого", value: "supplier_name", sortable: false },
+        { text: "Дата", value: "record_datetime", sortable: false }
+      ]
+    };
+  },
   methods: {
     //this is for loading data to store
     ...mapMutations({
@@ -74,29 +118,16 @@ export default {
       this.isLoading = false;
       this.load_incoming_data(data);
     },
+    async getIncomingDataByDepartment(storage_ids) {
+      this.isLoading = true;
+      const { data } = await repository.get_by_department_storages(storage_ids);
+      this.isLoading = false;
+      this.load_incoming_data(data);
+    },
     editRow(row) {
       this.edit_object = row;
       this.edit = true;
     }
-  },
-  data: function() {
-    return {
-      isLoading: false,
-      edit: false,
-      edit_object: Object,
-      headers: [
-        {
-          text: "Наименование товара",
-          value: "product_name",
-          sortable: false
-        },
-        { text: "Количество", value: "quantity", sortable: false },
-        { text: "Склад", value: "storage_name", sortable: false },
-        { text: "От кого", value: "supplier_name", sortable: false },
-        { text: "Дата", value: "record_datetime", sortable: false },
-        { text: "", sortable: false }
-      ]
-    };
   }
 };
 </script>

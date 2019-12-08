@@ -7,9 +7,9 @@ div
     v-card
       v-card-title.headline Сортировать по
       v-card-text
-        v-autocomplete(v-model='product_name' :items='remainder_data' label='Наименование товара' persistent-hint item-text='productName')
-        v-autocomplete(v-model='category_name' :items='remainder_data' label='Kатегория' persistent-hint item-text='categoryName')
-        v-autocomplete(v-model='storage_name' :items='storages' label='Склад' persistent-hint item-text='storage_name')
+        v-autocomplete(v-model='product_name' :items='remainder_data' label='Наименование товара' persistent-hint item-text='productName' clearable=true)
+        v-autocomplete(v-model='category_name' :items='remainder_data' label='Kатегория' persistent-hint item-text='categoryName' clearable=true)
+        v-autocomplete(v-model='storage_name' :items='storages' label='Склад' persistent-hint item-text='storage_name' clearable=true)
       v-card-actions
         v-btn(color='primary' flat @click='close') ЗАКРЫТЬ
         v-btn(color='primary' @click='sort_out') Сортировать
@@ -22,6 +22,7 @@ export default {
   name: "advanced-sort",
   computed: {
     ...mapGetters({
+      categories: "categories/get_categories",
       remainder_data: "remainders/get_remainder_data",
       storages: "storages/get_storages"
     })
@@ -50,6 +51,22 @@ export default {
       this.set_sorted(false);
       this.advanced_sort_dialog = false;
     },
+
+    find_matching_categories() {
+      let matching_categories = this.categories.filter(obj => {
+        return (
+          obj.category_name === this.category_name ||
+          obj.parent_category_name === this.category_name
+        );
+      });
+      Array.prototype.get_names = function() {
+        for (let i = 0; i < this.length; i++) {
+          this[i] = this[i].category_name;
+        }
+      };
+      matching_categories.get_names();
+      return matching_categories;
+    },
     sort_out() {
       let match = false;
       let sorted_array = [];
@@ -58,9 +75,18 @@ export default {
         if (this.product_name !== undefined)
           name_match = element.productName === this.product_name;
         let category_match = true;
-        if (this.category_name !== undefined)
-          category_match = element.categoryName === this.category_name;
-
+        if (this.category_name !== undefined) {
+          let matching_categories = this.find_matching_categories();
+          category_match = matching_categories.includes(element.categoryName);
+          // console.log(
+          //   element.productName +
+          //     "    " +
+          //     category_match +
+          //     "    " +
+          //     element.categoryName
+          // );
+          // category_match = element.categoryName === this.category_name;
+        }
         if (name_match && category_match) {
           let isChecked = false;
           if (this.storage_name !== undefined) {

@@ -7,6 +7,7 @@ div
       v-spacer
       v-spacer
       v-spacer
+      sort-by-date
       advanced-sort
       excel-generator
   table-incoming(:search='search')
@@ -15,6 +16,7 @@ div
 import TableIncoming from "./TableIncoming";
 import AdvancedSort from "./AdvancedSort";
 import ExcelGenerator from "./ExcelGenerator";
+import SortByDate from "./SortByDate"
 import { mapGetters } from "vuex";
 
 export default {
@@ -22,7 +24,8 @@ export default {
   components: {
     TableIncoming,
     AdvancedSort,
-    ExcelGenerator
+    ExcelGenerator,
+    SortByDate
   },
   data() {
     return {

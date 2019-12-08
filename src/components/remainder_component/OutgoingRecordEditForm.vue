@@ -14,19 +14,29 @@ div
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
         // data pick menu
-        data-pick-menu(@date-selected-event='dateSelected' :custom_date='record_datetime')
+        //- data-pick-menu(@date-selected-event='dateSelected' :custom_date='record_datetime')
           // autocomplete fields
+        //- v-autocomplete(
+        //-   v-model='client' 
+        //-   :items="client_list" 
+        //-   label='Получатель' 
+        //-   prepend-icon='person'  
+        //-   persistent-hint 
+        //-   item-text='client_name'
+        //-   return-object)
         v-autocomplete(
-          v-model='client' 
-          :items="client_list" 
-          label='Получатель' 
-          prepend-icon='person'  
+          v-if="user_role === 'Завсклад'"
+          v-model='product' 
+          :items='remainder_data' 
+          label='Наименование товара' 
+          prepend-icon='sort' 
           persistent-hint 
-          item-text='client_name'
+          item-text='productName' 
           return-object)
         v-autocomplete(
+          v-else
           v-model='product' 
-          :items="remainder_data" 
+          :items='exportable_list' 
           label='Наименование товара' 
           prepend-icon='sort' 
           persistent-hint 
@@ -46,16 +56,29 @@ div
           label='Количество' 
           prepend-icon='edit' 
           placeholder='0')
+        v-text-field(
+          :readonly='user_role==="Завсклад" ? true : false'
+          v-model.number='price' 
+          type='number' 
+          label='Цена' 
+          prepend-icon='$vuetify.icons.money' 
+          placeholder='0')
 </template>
 <script>
 import { mapGetters } from "vuex";
 
 export default {
   name: "outgoing-record-edit-form",
-
   props: {
     appear: Boolean,
     edit_object: Object
+  },
+  created() {
+    if (this.user_role !== "Завсклад") {
+      this.exportable_list = this.remainder_data.filter(function(record) {
+        return record.total !== 0;
+      });
+    }
   },
   mounted() {
     let client = this.client_list.filter(obj => {
@@ -71,6 +94,7 @@ export default {
     this.product = product[0];
     this.storage = storage[0];
     this.quantity = this.edit_object.quantity;
+    this.price = this.edit_object.price;
     this.record_datetime = this.edit_object.record_datetime;
   },
   computed: {
@@ -87,8 +111,10 @@ export default {
     return {
       save_records: false,
       inform_dialog_done: false,
+      exportable_list: [],
       date: "",
       record_datetime: "",
+      price: 0,
       quantity: 0,
       client: Object,
       product: Object,
@@ -114,9 +140,10 @@ export default {
           product_name: this.product.productName,
           product_ID: this.product.productID,
           storage_name: this.storage.storage_name,
-          record_datetime: this.date,
+          record_datetime: this.record_datetime,
           quantity: this.quantity,
-          inout_type_ID: 2
+          price: this.price,
+          inout_type_ID: 1
         };
 
         this.close(formatted);

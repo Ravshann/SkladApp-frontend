@@ -17,7 +17,19 @@ div
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
         v-text-field(v-model='client_name' label='Имя' prepend-icon='person' placeholder='Имя')
-        v-text-field(v-model='region' label='Регион' prepend-icon='place' placeholder='Регион')
+        v-autocomplete(
+          v-model='region' 
+          :items="region_list" 
+          label='Регион' 
+          prepend-icon='place' 
+          persistent-hint)
+        v-autocomplete(
+          v-model='client_type' 
+          :items="client_types" 
+          label='Тип' 
+          prepend-icon='people_alt' 
+          persistent-hint
+          clearable)  
         v-spacer(vertical)
 </template>
 <script>
@@ -40,6 +52,9 @@ export default {
       this.client_id = this.edit_object.client_ID;
       this.client_name = this.edit_object.client_name;
       this.region = this.edit_object.region;
+      this.client_type = this.edit_object.client_type;
+    } else {
+      this.client_type = this.client_types[0];
     }
   },
   data() {
@@ -49,8 +64,26 @@ export default {
       save_records: false,
       inform_dialog_done: false,
       client_id: Number,
-      client_name: "",
-      region: ""
+      client_name: String(),
+      region: String(),
+      client_type: String(),
+      client_types: ["нормал", "получил бракованный товар"],
+      region_list: [
+        "Город Ташкент",
+        "Ташкентская область",
+        "Андижан",
+        "Фергана",
+        "Наманган",
+        "Сырдарья",
+        "Джизак",
+        "Самарканд",
+        "Бухара",
+        "Кашкадарья",
+        "Сурхандарья",
+        "Навои",
+        "Хорезмская область",
+        "Каракалпакстан"
+      ]
     };
   },
   methods: {
@@ -76,7 +109,8 @@ export default {
         //make axios call to save it in backend
         let object = {
           client_name: this.client_name,
-          region: this.region
+          region: this.region,
+          client_type: this.client_type
         };
         if (this.show) repository.save(object);
         else repository.update(this.client_id, object);

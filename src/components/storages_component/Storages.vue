@@ -7,7 +7,7 @@ div
       v-spacer
       v-spacer
       v-spacer
-      create-storage-form
+      create-storage-form(v-if="enabled")
   table-storages(:search='search')
   
 </template>
@@ -15,20 +15,27 @@ div
 <script>
 import TableStorages from "./TableStorages";
 import CreateStorageForm from "./CreateStorageForm";
-
+import { mapGetters } from "vuex";
 export default {
   name: "Storages",
   components: {
     TableStorages,
     CreateStorageForm
   },
-
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
   data() {
     return {
-      search: ""
+      search: String(),
+      enabled: true
     };
   },
- 
+  computed: {
+    ...mapGetters({
+      user_role: "logged_user/get_user_role"
+    })
+  }
 };
 </script>
 

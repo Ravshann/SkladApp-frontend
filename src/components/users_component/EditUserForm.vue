@@ -39,13 +39,16 @@ div
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("users");
+const departmentManagersRepository = RepositoryFactory.get(
+  "department_managers"
+);
 
 import { mapMutations, mapGetters } from "vuex";
 import { setTimeout } from "timers";
 
 export default {
   name: "edit-user-form",
-  
+
   props: {
     appear: Boolean,
     edit_object: Object
@@ -89,10 +92,15 @@ export default {
   },
   methods: {
     ...mapMutations({
-      load_users: "users/load_users"
+      load_users: "users/load_users",
+      load_department_managers: "department_managers/load_department_managers"
     }),
     clearAll() {
       this.$emit("edit-form-closed", false);
+    },
+    async updateManagers() {
+      const { data } = await departmentManagersRepository.get();
+      this.load_department_managers(data);
     },
     async updateStore() {
       const { data } = await repository.get();
@@ -124,7 +132,8 @@ export default {
       }
       setTimeout(() => {
         this.updateStore();
-      }, 1000);
+        this.updateManagers();
+      }, 2000);
     }
   }
 };

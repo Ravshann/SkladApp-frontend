@@ -7,7 +7,7 @@ div
       v-spacer
       v-spacer
       v-spacer
-      create-category-form
+      create-category-form(v-if="enabled")
   table-categories(:search='search')
   
 </template>
@@ -22,14 +22,19 @@ export default {
     TableCategories,
     CreateCategoryForm
   },
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
   data() {
     return {
-      search: ""
+      search: String(),
+      enabled: true
     };
   },
   computed: {
     ...mapGetters({
-      today: "date/get_date"
+      today: "date/get_date",
+      user_role: "logged_user/get_user_role"
     })
   }
 };

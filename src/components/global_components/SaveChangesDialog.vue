@@ -1,5 +1,5 @@
 <template lang="pug">
-v-dialog(v-model='save_records' max-width='290')
+v-dialog(v-model='save_records' max-width='290' persistent)
   v-card
     v-card-title.headline Сохранить изменения?
     v-card-text Все изменения будут сохранены

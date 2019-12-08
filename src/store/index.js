@@ -19,6 +19,7 @@ import departments from "./modules/departments"
 import department_managers from "./modules/department_managers"
 import storage_managers from "./modules/storage_managers"
 import logged_user from "./modules/logged_user"
+import exchange from "./modules/exchange"
 
 
 Vue.use(Vuex)
@@ -43,7 +44,9 @@ export default new Vuex.Store({
         departments,
         department_managers,
         storage_managers,
-        logged_user
+        logged_user,
+        exchange,
+        
     },
 
 })

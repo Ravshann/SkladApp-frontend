@@ -3,7 +3,7 @@ v-content
   v-data-table.elevation-0.product-table(:headers='headers' :items='suppliers' :rows-per-page-items='[25,50]' :search='search')
     template(v-slot:items='props')
       td {{ props.item.supplier_name }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   edit-supplier-form(
@@ -26,6 +26,10 @@ export default {
   components: {
     EditSupplierForm
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.suppliers.length === 0) {
       this.getData();
@@ -33,20 +37,21 @@ export default {
   },
   computed: {
     ...mapGetters({
-      suppliers: "suppliers/get_suppliers"
+      suppliers: "suppliers/get_suppliers",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
       edit: false,
+      enabled: true,
       edit_object: Object,
       headers: [
         {
           text: "Имя(поставщик)",
           sortable: false,
           value: "supplier_name"
-        },
-        { text: "", sortable: false }
+        }
       ]
     };
   },
@@ -58,7 +63,7 @@ export default {
       const { data } = await repository.get();
       this.load_data(data);
     },
-     editRow(row) {
+    editRow(row) {
       this.edit_object = row;
       this.edit = true;
     }

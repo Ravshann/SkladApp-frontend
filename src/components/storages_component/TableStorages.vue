@@ -7,7 +7,8 @@ v-content
       td.text-xs-left {{ props.item.storage_phone}}
       td.text-xs-left {{ props.item.department_name}}
       td.text-xs-left {{ props.item.storage_manager_name}}
-      td.text-xs-left
+      td.text-xs-left {{ props.item.storage_type}}
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create
   edit-storage-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")   
@@ -25,6 +26,10 @@ export default {
   components: {
     EditStorageForm
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.storages.length === 0) {
       this.getData();
@@ -32,11 +37,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      storages: "storages/get_storages"
+      storages: "storages/get_storages",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
+      enabled: true,
       edit: false,
       edit_object: Object,
       headers: [
@@ -45,7 +52,7 @@ export default {
         { text: "Телефон", sortable: false, value: "phone" },
         { text: "Отдел", sortable: false, value: "department_name" },
         { text: "Зав.склад", sortable: false, value: "storage_manager_name" },
-        { text: "", sortable: false }
+        { text: "Тип склада", sortable: false, value: "storage_type" }
       ]
     };
   },

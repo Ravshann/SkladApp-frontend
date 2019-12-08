@@ -8,7 +8,7 @@ v-content
       td {{ props.item.user_phone }}
       td {{ props.item.company_ID.name }}
       td {{ props.item.role_ID.role_name }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   edit-user-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")            
@@ -27,6 +27,10 @@ export default {
   components: {
     EditUserForm
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.users.length === 0) {
       this.getData();
@@ -34,11 +38,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      users: "users/get_users"
+      users: "users/get_users",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
+      enabled: true,
       edit: false,
       edit_object: Object,
       headers: [
@@ -67,8 +73,7 @@ export default {
           text: "Должность",
           sortable: false,
           value: "role"
-        },
-        { text: "", sortable: false }
+        }
       ]
     };
   },

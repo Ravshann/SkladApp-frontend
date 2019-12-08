@@ -7,7 +7,8 @@ div
       v-spacer
       v-spacer
       v-spacer
-      defected-record-form
+      sort-by-date
+      defected-record-form(v-if='enabled')
       advanced-sort
       excel-generator
   table-defected(:search='search')    
@@ -17,6 +18,7 @@ import TableDefected from "./TableDefected";
 import AdvancedSort from "./AdvancedSort";
 import ExcelGenerator from "./ExcelGenerator";
 import DefectedRecordForm from "./DefectedRecordForm";
+import SortByDate from "./SortByDate";
 import { mapGetters } from "vuex";
 export default {
   name: "defected",
@@ -24,16 +26,22 @@ export default {
     TableDefected,
     AdvancedSort,
     ExcelGenerator,
-    DefectedRecordForm
+    DefectedRecordForm,
+    SortByDate
+  },
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
   },
   data() {
     return {
-      search: String()
+      search: String(),
+      enabled: true
     };
   },
   computed: {
     ...mapGetters({
-      today: "date/get_date"
+      today: "date/get_date",
+      user_role: "logged_user/get_user_role"
     })
   }
 };

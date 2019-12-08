@@ -9,9 +9,9 @@ v-content
       td {{ props.item.product_name }}
       td.text-xs-left(style='bold') {{ props.item.quantity }}
       td.text-xs-left {{ props.item.storage_name}}
-      td.text-xs-left {{ props.item.supplier_name }}
+      td.text-xs-left {{ props.item.supplier_storage_name }}
       td.text-xs-left {{ props.item.record_datetime }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create
   defected-record-edit-form(
@@ -23,6 +23,7 @@ v-content
 <script>
 import RepositoryFactory from "../../services/RepositoryFactory";
 const repository = RepositoryFactory.get("defected");
+const storagesRepository = RepositoryFactory.get("storages");
 import { mapGetters, mapMutations } from "vuex";
 import DefectedRecordEditForm from "./DefectedRecordEditForm";
 export default {
@@ -31,9 +32,14 @@ export default {
     DefectedRecordEditForm
   },
   props: {
-    search: String
+    search: String()
+  },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
   },
   created() {
+    this.getDefectedStorages();
     var storage = 0;
     if (this.storage_list !== undefined) storage = this.storage_list;
     if (this.user_role === "Завсклад" && this.defected_records.length === 0) {
@@ -45,6 +51,26 @@ export default {
             case "storages/load_storages":
               storage = mutation.payload;
               this.getDefectedDataByStorage(storage[0].storage_ID);
+              break;
+          }
+        });
+    } else if (
+      this.user_role === "Управляющий" &&
+      this.defected_records.length === 0
+    ) {
+      if (storage.length !== 0) {
+        this.storage_ids = storage.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getDefectedDataByDepartment(this.storage_ids);
+      } else
+        this.$store.subscribe(mutation => {
+          switch (mutation.type) {
+            case "storages/load_storages":
+              this.storage_ids = mutation.payload.map(function(storage) {
+                return { storage_ID: storage.storage_ID };
+              });
+              this.getDefectedDataByDepartment(this.storage_ids);
               break;
           }
         });
@@ -61,9 +87,12 @@ export default {
   },
   data() {
     return {
+      enabled: true,
       isLoading: false,
       edit: false,
       edit_object: Object,
+      storage_ids: [],
+
       headers: [
         {
           text: "Наименование товара",
@@ -71,20 +100,41 @@ export default {
           value: "product_name"
         },
         { text: "Количество", value: "quantity", sortable: false },
-        { text: "Склад", value: "storage_name", sortable: false },
-        { text: "От кого(поставщик)", value: "supplier_name", sortable: false },
-        { text: "Дата", value: "record_datetime", sortable: false },
-        { text: "", sortable: false }
+        { text: "Склад получатель", value: "storage_name", sortable: false },
+        {
+          text: "Склад отправитель",
+          value: "supplier_storage_name",
+          sortable: false
+        },
+        { text: "Дата", value: "record_datetime", sortable: false }
       ]
     };
   },
   methods: {
     ...mapMutations({
-      load_data: "defected/load_data"
+      load_data: "defected/load_data",
+      load_defected_storages: "storages/load_defected_storages"
     }),
+    async getDefectedStorages() {
+      const { data } = await storagesRepository.get_defected_storage();
+      this.load_defected_storages(data);
+    },
     async getDefectedDataByStorage(storage_id) {
+      if (this.storage_list[0].storage_type === "defected") {
+        this.isLoading = true;
+        const { data } = await repository.get_by_storage(storage_id);
+        this.isLoading = false;
+        this.load_data(data);
+      } else {
+        this.isLoading = true;
+        const { data } = await repository.get_by_supplier_storage(storage_id);
+        this.isLoading = false;
+        this.load_data(data);
+      }
+    },
+    async getDefectedDataByDepartment(storage_ids) {
       this.isLoading = true;
-      const { data } = await repository.get_by_storage(storage_id);
+      const { data } = await repository.get_by_department_storages(storage_ids);
       this.isLoading = false;
       this.load_data(data);
     },

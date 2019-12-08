@@ -8,7 +8,7 @@ v-content
       td {{ props.item.company.name }}
       td {{ props.item.department_manager.first_name }}
       td {{ props.item.description }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   edit-department-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")            
@@ -27,6 +27,10 @@ export default {
   components: {
     EditDepartmentForm
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.departments.length === 0) {
       this.getData();
@@ -34,11 +38,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      departments: "departments/get_departments"
+      departments: "departments/get_departments",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
+      enabled: true,
       edit: false,
       edit_object: Object,
       headers: [
@@ -59,8 +65,7 @@ export default {
           text: "Описание",
           sortable: false,
           value: "description"
-        },
-        { text: "", sortable: false }
+        }
       ]
     };
   },

@@ -7,7 +7,7 @@ div
       v-spacer
       v-spacer
       v-spacer
-      create-user-form
+      create-user-form(v-if="enabled")
   table-users(:search='search')
   
 </template>
@@ -16,15 +16,25 @@ div
 import TableUsers from "./TableUsers";
 
 import CreateUserForm from "./CreateUserForm";
+import { mapGetters } from "vuex";
 export default {
   name: "Users",
   components: {
     TableUsers,
     CreateUserForm
   },
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
+  computed: {
+    ...mapGetters({
+      user_role: "logged_user/get_user_role"
+    })
+  },
   data() {
     return {
-      search: ""
+      search: String(),
+      enabled: true
     };
   }
 };

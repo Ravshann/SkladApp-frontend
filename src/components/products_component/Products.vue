@@ -7,33 +7,36 @@ div
       v-spacer
       v-spacer
       v-spacer
-      create-product-form 
+      create-product-form(v-if="enabled") 
   table-products(:search='search')
   
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters } from "vuex";
 import TableProducts from "./TableProducts";
-import CreateProductForm from "./CreateProductForm"
+import CreateProductForm from "./CreateProductForm";
 export default {
   name: "Products",
   components: {
     TableProducts,
     CreateProductForm
   },
-
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
   data() {
     return {
-      search: ""
+      search: String(),
+      enabled: true
     };
   },
   computed: {
     ...mapGetters({
-      today: "date/get_date"
+      today: "date/get_date",
+      user_role: "logged_user/get_user_role"
     })
-  },
-  methods: {}
+  }
 };
 </script>
 

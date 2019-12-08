@@ -7,7 +7,7 @@ div
       v-spacer
       v-spacer
       v-spacer
-      clients-create-form
+      clients-create-form(v-if="enabled")
   table-clients(:search='search')
   
 </template>
@@ -22,15 +22,19 @@ export default {
     TableClients,
     ClientsCreateForm
   },
-
+  created() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+  },
   data() {
     return {
-      search: ""
+      search: String(),
+      enabled: true
     };
   },
   computed: {
     ...mapGetters({
-      today: "date/get_date"
+      today: "date/get_date",
+      user_role: "logged_user/get_user_role"
     })
   },
   methods: {}

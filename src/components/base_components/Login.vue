@@ -39,7 +39,7 @@ v-app#inspire
 <script>
 import { mapMutations } from "vuex";
 import axios from "axios";
-import RepositoryFactory from "../services/RepositoryFactory";
+import RepositoryFactory from "../../services/RepositoryFactory";
 const storagesRepository = RepositoryFactory.get("storages");
 export default {
   name: "Login",
@@ -85,21 +85,38 @@ export default {
       this.load_user_role(object.role);
       this.load_username(object.username);
       this.load_user_ID(object.user_ID);
-      localStorage.removeItem("sklad-user-token");
-      localStorage.setItem("sklad-user-token", object.token);
+      sessionStorage.setItem("sklad-user-token", object.token);
       axios.defaults.headers.common.Authorization = "Bearer " + object.token;
-      this.getStorage(object.user_ID);
+      this.logic(object);
       this.$router.push("/");
+    },
+    async getRegionalStorages(user_ID) {
+      const { data } = await storagesRepository.get_regional_storages(user_ID);
+      return data;
     },
     async getStorage(user_ID) {
       const { data } = await storagesRepository.get_single(user_ID);
       var array = [data];
-      this.load_storages(array);
+      return array;
     },
+    logic(result) {
+      if (result.role === "Завсклад") {
+        let storage = this.getStorage(result.user_ID);
+        storage.then(stor => {
+          this.load_storages(stor);
+        });
+      } else if (result.role === "Управляющий"|| result.role === "Офис-Ташкент") {
+        let storage = this.getRegionalStorages(result.user_ID);
+        storage.then(stor => {
+          this.load_storages(stor);
+        });
+      }
+    },
+
     loginButtonClicked() {
       if (this.login !== "" && this.password !== "") {
         axios({
-          url: "https://www.sklad-app.tk:8443/login",
+          url: process.env.VUE_APP_API+"/login",
           data: {
             username: this.login,
             password: this.password
@@ -118,7 +135,10 @@ export default {
               }
             }.bind(this)
           )
-          .catch(function() {})
+          .catch(function(response) {
+            return response;
+            // console.log(response);
+          })
           .finally(function() {});
       }
     }

@@ -15,49 +15,54 @@ div
         save-changes-dialog(:save_records="save_records" @save-changes-dialog-event="saveChanges")
         inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
       v-card-text
-        // data pick menu
-        data-pick-menu(@date-selected-event='dateSelected')
-          // autocomplete fields
-        v-autocomplete(
-          v-model='supplier'
-          :items='suppliers' 
-          label='Поставщик' 
-          prepend-icon='local_shipping' 
-          persistent-hint 
-          item-text='supplier_name'
-          return-object)
-        v-autocomplete(
-          v-model='product' 
-          :items='products' 
-          label='Наименование товара' 
-          prepend-icon='sort' 
-          persistent-hint 
-          item-text='product_name'
-          return-object)
-        v-autocomplete(
-          v-model='storage' 
-          :items='storages' 
-          label='Склад' 
-          prepend-icon='home' 
-          persistent-hint 
-          item-text='storage_name'
-          return-object)
-        v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
-        v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
-          v-icon(dark) add
-        v-data-table(:headers='headers' :items='list')
-          template(v-slot:items='props')
-            td.text-xs-left {{ props.item.product_name }}
-            td.text-xs-left {{ props.item.quantity }}
-            td.text-xs-left {{ props.item.storage_name }}
-            td.text-xs-left {{ props.item.supplier_name }}
-            td.text-xs-left {{ props.item.date }}
-            td.text-xs-left
-              span
-                v-icon(@click="deleteRecord(props.item)" color='red') clear
-            td.text-xs-left
-              span
-                v-icon(@click="editRecord(props.item)" color='blue') create
+        v-layout(row wrap)     
+          v-layout(column wrap id="first_column")
+            // data pick menu
+            data-pick-menu(@date-selected-event='dateSelected')
+              // autocomplete fields
+            v-autocomplete(
+              v-model='supplier_storage'
+              :items='storages' 
+              label='Склад отправитель' 
+              prepend-icon='home' 
+              persistent-hint 
+              item-text='storage_name'
+              return-object)
+            v-autocomplete(
+              v-model='product' 
+              :items='products' 
+              label='Наименование товара' 
+              prepend-icon='sort' 
+              persistent-hint 
+              item-text='product_name'
+              return-object)
+            v-autocomplete(
+              v-model='storage' 
+              :items='defected_storages' 
+              label='Склад получатель' 
+              prepend-icon='home' 
+              persistent-hint 
+              item-text='storage_name'
+              return-object)
+            v-layout(column wrap)
+              v-text-field(v-model.number='quantity' type='number' label='Количество' prepend-icon='edit' placeholder='0')
+              p Есть в наличии: {{available_quantity}}
+            v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
+              v-icon(dark) add
+          v-layout.pl-4(column wrap)   
+            v-data-table(:headers='headers' :items='list')
+              template(v-slot:items='props')
+                td.text-xs-left {{ props.item.product_name }}
+                td.text-xs-left {{ props.item.quantity }}
+                td.text-xs-left {{ props.item.storage_name }}
+                td.text-xs-left {{ props.item.supplier_storage_name }}
+                td.text-xs-left {{ props.item.date }}
+                td.text-xs-left
+                  span
+                    v-icon(@click="deleteRecord(props.item)" color='red') clear
+                td.text-xs-left
+                  span
+                    v-icon(@click="editRecord(props.item)" color='blue') create
         defected-record-edit-form(
           v-if="edit" 
           :appear="edit" 
@@ -80,12 +85,26 @@ export default {
   },
   computed: {
     ...mapGetters({
-      suppliers: "suppliers/get_suppliers",
       products: "products/get_products",
       storages: "storages/get_storages",
+      defected_storages: "storages/get_defected_storages",
       defected_data: "defected/get_data",
+      remainder_data: "remainders/get_remainder_data",
       user_role: "logged_user/get_user_role"
-    })
+    }),
+    available_quantity: function() {
+      if (this.remainder_data !== undefined && this.product !== undefined) {
+        let record = this.remainder_data.find(item => {
+          return item.productName === this.product.product_name;
+        });
+        if (record !== undefined && this.supplier_storage !== undefined) {
+          let str_qu = record.storageQuantities.find(item => {
+            return item.storageName === this.supplier_storage.storage_name;
+          });
+          return str_qu !== undefined ? str_qu.quantity : 0;
+        } else return 0;
+      } else return 0;
+    }
   },
   data: function() {
     return {
@@ -101,7 +120,7 @@ export default {
       detailed_list: [],
       product: Object,
       storage: Object,
-      supplier: Object,
+      supplier_storage: Object,
       quantity: "",
       date: Date,
       headers: [
@@ -114,11 +133,11 @@ export default {
           sortable: false
         },
         {
-          text: "Склад",
+          text: "Склад получатель",
           sortable: false
         },
         {
-          text: "Поставщик",
+          text: "Склад отправитель",
           sortable: false
         },
         {
@@ -151,11 +170,28 @@ export default {
       const { data } = await repository.get_by_storage(storage_id);
       this.load_defected_data(data);
     },
-
+    async getDefectedDataBySupplierStorage(storage_id) {
+      const { data } = await repository.get_by_supplier_storage(storage_id);
+      this.load_defected_data(data);
+    },
+    async getDefectedDataByDepartment(storage_ids) {
+      const { data } = await repository.get_by_department_storages(storage_ids);
+      this.load_defected_data(data);
+    },
     async refresh() {
-      if (this.user_role === "Завсклад")
-        this.getDefectedDataByStorage(this.storages[0].storage_ID);
-      else {
+      if (this.user_role === "Завсклад") {
+        if (this.storage_list[0].storage_type === "defected")
+          this.getDefectedDataByStorage(this.storage_list[0].storage_ID);
+        else
+          this.getDefectedDataBySupplierStorage(
+            this.storage_list[0].storage_ID
+          );
+      } else if (this.user_role === "Управляющий") {
+        let storage_ids = this.storages.map(function(storage) {
+          return { storage_ID: storage.storage_ID };
+        });
+        this.getDefectedDataByDepartment(storage_ids);
+      } else {
         const { data } = await repository.get();
         this.load_defected_data(data);
       }
@@ -181,7 +217,7 @@ export default {
           product_name: data.product_name,
           storage_name: data.storage_name,
           quantity: data.quantity,
-          supplier_name: data.supplier_name,
+          supplier_storage_name: data.supplier_storage_name,
           date: data.record_datetime
         };
 
@@ -193,10 +229,10 @@ export default {
         this.detailed_list[this.edit_object_index] = {
           product_ID: data.product_ID,
           storage_ID: data.storage_ID,
-          supplier_ID: data.supplier_ID,
+          supplier_storage_ID: data.supplier_storage_ID,
           quantity: data.quantity,
           record_datetime: data.record_datetime,
-          inout_type_ID: 2,
+          inout_type_ID: 4,
           note: "some"
         };
       }
@@ -207,13 +243,13 @@ export default {
         product_name: this.product.product_name,
         storage_name: this.storage.storage_name,
         quantity: this.quantity,
-        supplier_name: this.supplier.supplier_name,
+        supplier_storage_name: this.supplier_storage.storage_name,
         date: this.date
       };
       var new_detailed_record = {
         product_ID: this.product.product_ID,
         storage_ID: this.storage.storage_ID,
-        supplier_ID: this.supplier.supplier_ID,
+        supplier_storage_ID: this.supplier_storage.storage_ID,
         quantity: this.quantity,
         record_datetime: this.date,
         inout_type_ID: 4,
@@ -224,7 +260,7 @@ export default {
       this.product = "";
       this.storage = "";
       this.quantity = "";
-      this.supplier = "";
+      this.supplier_storage = "";
     },
     saveChanges: function(choice) {
       if (choice) {
@@ -245,3 +281,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+#first_column {
+  width: 15%;
+}
+</style>

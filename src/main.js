@@ -31,7 +31,10 @@ Vue.use(Vuetify, {
     'goods': 'fas fa-cubes',
     'manager_users_icon': 'fas fa-user-tie',
     "excel_icon": 'fas fa-file-excel',
-    "search_icon": 'fas fa-search'
+    "search_icon": 'fas fa-search',
+    "period_icon": "fas fa-history",
+    "movement": "fas fa-exchange-alt",
+    "money": "fas fa-dollar-sign"
   },
   theme: {
     nav_drawer: '#293242',

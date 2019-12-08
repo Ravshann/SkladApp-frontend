@@ -37,8 +37,10 @@ div
           return-object)
 </template>
 <script>
-
 import RepositoryFactory from "../../services/RepositoryFactory";
+const departmentManagersRepository = RepositoryFactory.get(
+  "department_managers"
+);
 const repository = RepositoryFactory.get("users");
 
 import { mapMutations, mapGetters } from "vuex";
@@ -46,7 +48,7 @@ import { setTimeout } from "timers";
 
 export default {
   name: "create-user-form",
-  
+
   computed: {
     ...mapGetters({
       company_list: "companies/get_companies",
@@ -72,7 +74,8 @@ export default {
   },
   methods: {
     ...mapMutations({
-      load_users: "users/load_users"
+      load_users: "users/load_users",
+      load_department_managers: "department_managers/load_department_managers"
     }),
     clearAll() {
       this.first_name = "";
@@ -83,6 +86,10 @@ export default {
       this.company = "";
       this.role = "";
       this.dialog = false;
+    },
+    async updateManagers() {
+      const { data } = await departmentManagersRepository.get();
+      this.load_department_managers(data);
     },
     async updateStore() {
       const { data } = await repository.get();
@@ -113,7 +120,8 @@ export default {
       }
       setTimeout(() => {
         this.updateStore();
-      }, 1000);
+        this.updateManagers();
+      }, 2000);
     }
   }
 };

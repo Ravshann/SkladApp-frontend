@@ -5,7 +5,7 @@ v-content
     template(v-slot:items='props')
       td {{ props.item.product_name }}
       td.text-xs-left(style='bold') {{ props.item.category.category_name }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create  
       td.text-xs-left
@@ -32,6 +32,10 @@ export default {
     ProductEditForm,
     AttributesDialog
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.products.length === 0) {
       this.getData();
@@ -39,7 +43,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      products: "products/get_products"
+      products: "products/get_products",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
@@ -56,7 +61,6 @@ export default {
           sortable: false
         },
         { text: "Kатегория", value: "category", sortable: false },
-        { text: "", sortable: false },
         { text: "", sortable: false }
       ]
     };

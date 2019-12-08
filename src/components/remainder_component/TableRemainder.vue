@@ -1,5 +1,5 @@
 <template lang="pug">
-v-content(v-if='!isLoading')
+div(v-if='!isLoading')
   v-data-table.elevation-0.product-table(
     :headers='headers' 
     :items='data_is_sorted ? remainder_data_sorted : remainder_data' 
@@ -42,6 +42,8 @@ export default {
   created() {
     if (this.user_role === "Завсклад") {
       this.getStorage(this.user_ID);
+    } else if (this.user_role === "Управляющий") {
+      this.getRegionalStorages(this.user_ID);
     } else {
       this.getRemainders();
     }
@@ -73,7 +75,13 @@ export default {
       this.load_storages(array);
       this.getRemainders();
     },
+    async getRegionalStorages(user_ID) {
+      const { data } = await storagesRepository.get_regional_storages(user_ID);
+      this.load_storages(data);
+      this.getRemainders();
+    },
     async getRemainders() {
+      //if user is zavsklad
       if (this.user_role === "Завсклад" && this.storage_list[0] !== undefined) {
         var storage_id = this.storage_list[0].storage_ID;
         this.isLoading = true;
@@ -83,7 +91,26 @@ export default {
           return a.productName.toLowerCase().localeCompare(b.productName);
         });
         this.load_remainder_data(data);
-      } else {
+      } else if (
+        this.user_role === "Управляющий" &&
+        this.storage_list[0] !== undefined
+      ) {
+        // var storage_id = this.storage_list[0].storage_ID;
+        var list = [];
+        this.storage_list.forEach(element => {
+          let a = { storage_ID: element.storage_ID };
+          list.push(a);
+        });
+        this.isLoading = true;
+        const { data } = await repository.get_by_department_storages(list);
+        this.isLoading = false;
+        data.sort(function(a, b) {
+          return a.productName.toLowerCase().localeCompare(b.productName);
+        });
+        this.load_remainder_data(data);
+      }
+      //the user is not zavkslad or department manager
+      else {
         this.isLoading = true;
         const { data } = await repository.get();
         this.isLoading = false;

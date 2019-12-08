@@ -6,7 +6,7 @@ v-content
       td {{ props.item.parent_category_name }}
       td {{ props.item.unit_measure }}
       td {{ props.item.category_notes }}
-      td.text-xs-left
+      td.text-xs-left(v-if="enabled")
         span
           v-icon(@click="editRow(props.item)") create 
   edit-category-form(v-if="edit" :edit_object="edit_object" :appear="edit" @edit-form-closed="edit=false")            
@@ -25,6 +25,10 @@ export default {
   components: {
     EditCategoryForm
   },
+  mounted() {
+    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    if (this.enabled) this.headers.push({ text: "", sortable: false });
+  },
   created() {
     if (this.categories.length === 0) {
       this.getData();
@@ -32,11 +36,13 @@ export default {
   },
   computed: {
     ...mapGetters({
-      categories: "categories/get_categories"
+      categories: "categories/get_categories",
+      user_role: "logged_user/get_user_role"
     })
   },
   data() {
     return {
+      enabled: true,
       edit: false,
       edit_object: Object,
       headers: [
@@ -55,8 +61,7 @@ export default {
           text: "Примечание",
           sortable: false,
           value: "category_notes"
-        },
-        { text: "", sortable: false }
+        }
       ]
     };
   },
