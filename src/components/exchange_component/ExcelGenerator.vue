@@ -2,7 +2,7 @@
 download-excel(
   :data='formatted'
   :before-finish = 'clean_up' 
-  worksheet='дефектные'
+  worksheet='перемещении'
   :title='filename' 
   :name='filename')
   v-btn(color='#00897B' dark @click='formatData') Скачать
@@ -13,9 +13,9 @@ export default {
   name: "excel-generator",
   computed: {
     ...mapGetters({
-      defected_records: "defected/get_data",
-      data_is_sorted: "defected/get_sorted_flag",
-      sorted_data: "defected/get_sorted_data",
+      exchange_records: "exchange/get_data",
+      data_is_sorted: "exchange/get_sorted_flag",
+      sorted_data: "exchange/get_sorted_data",
       today: "date/get_dashed_date"
     })
   },
@@ -23,7 +23,7 @@ export default {
   data: function() {
     return {
       formatted: [],
-      filename: "дефектные"
+      filename: "перемещении"
     };
   },
   methods: {
@@ -37,22 +37,20 @@ export default {
         this.sorted_data.forEach(item => {
           let row = {
             "Наименование товара": item.product_name,
-            Kатегория: item.category_name,
             Количество: item.quantity,
-            Склад: item.storage_name,
-            Поставщик: item.supplier_name,
+            'Склад получатель': item.storage_name,
+            'Склад отправитель': item.supplier_storage_name,
             Дата: item.record_datetime
           };
           this.formatted.push(row);
         });
       } else {
-        this.defected_records.forEach(item => {
+        this.exchange_records.forEach(item => {
           let row = {
             "Наименование товара": item.product_name,
-            Kатегория: item.category_name,
             Количество: item.quantity,
-            Склад: item.storage_name,
-            Поставщик: item.supplier_name,
+            'Склад получатель': item.storage_name,
+            'Склад отправитель': item.supplier_storage_name,
             Дата: item.record_datetime
           };
           this.formatted.push(row);

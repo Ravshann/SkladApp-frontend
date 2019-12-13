@@ -11,7 +11,7 @@ div
         v-text-field(v-model='newSupplier' append-icon='person' label='Новый поставщик' single-line hide-details)
         v-btn(color='indigo' @click='create' fab dark  flat) 
           v-icon(dark) {{icon}}
-      save-changes-dialog(:save_records="save_outgoing_records" @save-changes-dialog-event="saveChanges")
+      save-changes-dialog(:save_records="save_dialog" @save-changes-dialog-event="saveChanges")
       inform-dialog-done(:dialog="inform_dialog_done" @done-dialog-closed="inform_dialog_done=false")
   table-suppliers(:search='search')
   

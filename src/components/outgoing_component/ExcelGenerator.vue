@@ -164,7 +164,7 @@ export default {
           Склад: inner_item.storage_name,
           Цена: inner_item.price,
           Количество: inner_item.quantity,
-          Сумма: inner_item.quantity
+          Сумма: inner_item.quantity*inner_item.price
         };
         this.formatted.push(row);
       });
