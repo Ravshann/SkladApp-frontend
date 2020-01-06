@@ -148,6 +148,8 @@ export default {
       const buf = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buf]), this.filename + ".xlsx");
       this.formatted = [];
+      this.merge_sizes = [];
+      this.pointer = 3;
     },
 
     populate_data_to_formatted(item) {
@@ -164,7 +166,7 @@ export default {
           Склад: inner_item.storage_name,
           Цена: inner_item.price,
           Количество: inner_item.quantity,
-          Сумма: inner_item.quantity*inner_item.price
+          Сумма: inner_item.quantity * inner_item.price
         };
         this.formatted.push(row);
       });

@@ -66,7 +66,7 @@ div
                 :rules="[validation_rules.required_product]"
                 clearable=true)
               ul 
-                li(v-for="item in storage_quantities") {{item}}
+                li(v-for="item in available_quantities") {{item}}
               v-autocomplete(
                 v-model='storage' 
                 :items='storages' 
@@ -78,15 +78,6 @@ div
                 :rules="[validation_rules.required_storage]"
                 clearable=true)
               v-layout(column wrap)
-                v-text-field(
-                  :readonly='user_role==="Завсклад" ? true : false'
-                  v-model.number='price' 
-                  type='number' 
-                  label='Цена' 
-                  prepend-icon='$vuetify.icons.money' 
-                  item-text='price' 
-                  :rules="[validation_rules.required_price]"
-                  placeholder='0')
                 v-text-field#quantity(
                   :disabled="!product_available"
                   v-model.number='quantity' 
@@ -97,6 +88,15 @@ div
                   item-text='quantity' 
                   :rules="[validation_rules.required_quantity]"
                   placeholder='0')
+                v-text-field(
+                  :readonly='user_role==="Завсклад" ? true : false'
+                  v-model.number='price' 
+                  type='number' 
+                  label='Цена' 
+                  prepend-icon='$vuetify.icons.money' 
+                  item-text='price' 
+                  :rules="[validation_rules.required_price]"
+                  placeholder='0')  
                 p Есть в наличии: {{available_quantity}}
             v-btn(fab dark color='indigo' justify-center @click.prevent='add' title='добавить')
               v-icon(dark) add
@@ -175,7 +175,7 @@ export default {
       }
     },
     exported_product_quantities: {
-      handler: function(val) {
+      handler: function() {
         let inmap = this.exported_product_quantities.get(
           this.product.productName
         );
@@ -208,11 +208,11 @@ export default {
         if (record !== undefined && this.storage !== undefined) {
           let array = [];
           record.storageQuantities.forEach(item => {
-            array.push(item.storageName + " - " + item.quantity);
+            array.push(item.storageName + " : " + item.quantity);
           });
-          this.storage_quantities = array;
-        }
-      }
+          return array;
+        } else return [];
+      } else return [];
     },
     available_quantity: function() {
       if (this.remainder_data !== undefined && this.product !== undefined) {

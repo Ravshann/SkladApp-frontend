@@ -176,6 +176,9 @@ export default {
       return matching_categories;
     },
     sort_out() {
+      this.load_sorted_data([]);
+      this.load_sorted_formatted_data([]);
+      this.set_sorted_flag(false);
       let sorted_array = [];
       this.outgoing_data.forEach(element => {
         let name_match = true;

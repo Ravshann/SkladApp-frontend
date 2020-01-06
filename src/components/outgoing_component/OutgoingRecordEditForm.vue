@@ -40,6 +40,7 @@ div
           item-text='storage_name' 
           return-object)
         v-text-field(
+          v-if="str_m_enabled"
           :readonly='user_role==="Завсклад" ? true : false'
           v-model.number='price' 
           type='number' 
@@ -64,6 +65,7 @@ export default {
     edit_object: Object
   },
   mounted() {
+    if (this.user_role === "Завсклад") this.str_m_enabled = false;
     this.client = {
       client_name: this.edit_object.client_name,
       client_ID: this.edit_object.client_ID
@@ -92,6 +94,7 @@ export default {
   },
   data() {
     return {
+      str_m_enabled: true,
       save_dialog: false,
       inform_dialog_done: false,
       selectedDate: "",
@@ -216,9 +219,9 @@ export default {
               product_quantities: product_quantities
             });
             // if (i !== operated_data.length - 2) {
-              product_quantities = [];
-              total_quantity = 0;
-              total_price = 0;
+            product_quantities = [];
+            total_quantity = 0;
+            total_price = 0;
             // }
           }
         } else {

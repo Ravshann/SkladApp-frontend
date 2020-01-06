@@ -3,7 +3,7 @@ div(v-if='!isLoading')
   v-data-table.elevation-0.product-table(
     :headers='headers' 
     :items='data_is_sorted ? remainder_data_sorted : remainder_data' 
-    :rows-per-page-items='[25,50]' 
+    :rows-per-page-items='[100,200,300]' 
     :search='search')
     template(v-slot:items='props')
       td {{ props.item.productName }}
@@ -113,8 +113,12 @@ export default {
       else {
         this.isLoading = true;
         const { data } = await repository.get();
+        // console.log(data);
         this.isLoading = false;
+
         data.sort(function(a, b) {
+          // console.log(a);
+
           return a.productName.toLowerCase().localeCompare(b.productName);
         });
         this.load_remainder_data(data);

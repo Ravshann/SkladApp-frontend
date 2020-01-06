@@ -1,7 +1,7 @@
 <template lang="pug">
 v-content
   attributes-dialog(:show="show_product", :product="product" @close-attributes-dialog="show_product = false")
-  v-data-table.elevation-0.product-table(:headers='headers' :items='products' :rows-per-page-items='[25,50]' :search='search')
+  v-data-table.elevation-0.product-table(:headers='headers' :items='products' :rows-per-page-items='[100,200,300]' :search='search')
     template(v-slot:items='props')
       td {{ props.item.product_name }}
       td.text-xs-left(style='bold') {{ props.item.category.category_name }}

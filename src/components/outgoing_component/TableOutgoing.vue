@@ -4,7 +4,7 @@ v-content
     v-if="!isLoading" 
     :headers='headers' 
     :items='data_is_sorted ? sorted_data : formatted_outgoing_records' 
-    :rows-per-page-items='[25,50]' 
+    :rows-per-page-items='[100,200,300]' 
     :search='search')
     template(v-slot:items='props')
       td {{ props.item.record_datetime }}
@@ -27,7 +27,7 @@ v-content
         template(v-for='(item, index) in props.item.product_quantities')
           td.text-xs-left.pl-4(style='min-width: 100%;') {{ item.storage_name }}
           v-divider(v-if="index !== (props.item.product_quantities.length-1)")
-      td.px-0(v-if="enabled")
+      td.px-0(v-if="enabled || str_m_enabled")
         template(v-for='(item, index) in props.item.product_quantities')
           td.text-xs-left.pl-4(style='min-width: 100%;')
             v-icon(@click="editRow(props.item, index)") create
@@ -46,7 +46,10 @@ export default {
   },
   components: { OutgoingRecordEditForm },
   created() {
-    this.enabled = this.user_role === "Наблюдатель" ? false : true;
+    this.enabled =
+      this.user_role === "Наблюдатель" || this.user_role === "Завсклад"
+        ? false
+        : true;
     if (this.enabled) {
       this.headers.splice(3, 0, {
         text: "Сумма",
@@ -58,6 +61,11 @@ export default {
         value: "price",
         sortable: false
       });
+      this.headers.push({ text: "", value: "edit_button", sortable: false });
+    }
+
+    if (this.user_role === "Завсклад") {
+      this.str_m_enabled = true;
       this.headers.push({ text: "", value: "edit_button", sortable: false });
     }
   },
@@ -111,7 +119,8 @@ export default {
   },
   data() {
     return {
-      enabled: true,
+      enabled: false,
+      str_m_enabled: false,
       isLoading: false,
       edit: false,
       edit_object: Object,
@@ -221,9 +230,9 @@ export default {
               product_quantities: product_quantities
             });
             // if (i !== operated_data.length - 2) {
-              product_quantities = [];
-              total_quantity = 0;
-              total_price = 0;
+            product_quantities = [];
+            total_quantity = 0;
+            total_price = 0;
             // }
           }
         } else {

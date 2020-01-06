@@ -98,14 +98,16 @@ export default {
 
     log_out() {
       sessionStorage.removeItem("sklad-user-token");
-      this.load_user_logging_status(false);
+      
       this.load_user_token("");
       this.load_user_role("");
       this.load_username("");
       this.load_user_ID(-1);
+      let self = this;
       setTimeout(() => {
-        this.$router.go("/login");
-      }, 500);
+        this.load_user_logging_status(false);
+        self.$router.go("/login");
+      }, 2000);
     },
     toggleDrawer() {
       let mobile = isMobile();

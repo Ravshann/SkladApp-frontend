@@ -105,7 +105,10 @@ export default {
         storage.then(stor => {
           this.load_storages(stor);
         });
-      } else if (result.role === "Управляющий"|| result.role === "Офис-Ташкент") {
+      } else if (
+        result.role === "Управляющий" ||
+        result.role === "Офис-Ташкент"
+      ) {
         let storage = this.getRegionalStorages(result.user_ID);
         storage.then(stor => {
           this.load_storages(stor);
@@ -116,7 +119,7 @@ export default {
     loginButtonClicked() {
       if (this.login !== "" && this.password !== "") {
         axios({
-          url: process.env.VUE_APP_API+"/login",
+          url: process.env.VUE_APP_API + "/login",
           data: {
             username: this.login,
             password: this.password
@@ -125,10 +128,11 @@ export default {
         })
           .then(
             function(response) {
-              if (response.data.message === "password did not match") {
-                this.set_error_message(response.data.message);
-              } else if (response.data.message === "user not found") {
-                this.set_error_message(response.data.message);
+              if (
+                response.data.message ===
+                "user not found this by username and password or user object in proper format"
+              ) {
+                this.set_error_message("username or password is wrong");
               } else {
                 this.set_credentials(response.data);
                 this.error_occured = false;

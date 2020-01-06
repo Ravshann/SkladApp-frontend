@@ -4,7 +4,7 @@ v-content
   v-if="!isLoading" 
   :headers='headers' 
   :items='data_is_sorted ? sorted_data : incoming_records' 
-  :rows-per-page-items='[25,50]' 
+  :rows-per-page-items='[100,200,300]' 
   :search='search')
     template(v-slot:items='props')
       td {{ props.item.product_name }}
